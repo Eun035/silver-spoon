@@ -91,7 +91,7 @@ export default function Home() {
             <div className="min-h-screen flex items-center justify-center bg-gray-50">
                 <div className="flex flex-col items-center gap-4">
                     <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-                    <p className="text-indigo-600 font-bold animate-pulse">CAL.API 준비 중...</p>
+                    <p className="text-indigo-600 font-bold animate-pulse">CAL.AI 준비 중...</p>
                 </div>
             </div>
         );
@@ -105,7 +105,7 @@ export default function Home() {
                         <Calendar className="w-12 h-12 text-white" />
                     </div>
                     <div className="space-y-2">
-                        <h1 className="text-4xl font-black text-gray-900 tracking-tight">CAL.API</h1>
+                        <h1 className="text-4xl font-black text-gray-900 tracking-tight">CAL.AI</h1>
                         <p className="text-gray-500 font-medium leading-relaxed">
                             목소리로 일정을 관리하는<br />가장 스마트한 방법
                         </p>
@@ -132,7 +132,7 @@ export default function Home() {
                     <div className="bg-indigo-600 p-2 rounded-xl">
                         <Calendar className="w-5 h-5 text-white" />
                     </div>
-                    <h1 className="text-xl font-black text-indigo-900 tracking-tighter uppercase italic">Cal.API</h1>
+                    <h1 className="text-xl font-black text-indigo-900 tracking-tighter uppercase italic">Cal.AI</h1>
                 </div>
                 <div className="flex items-center gap-4">
                     <div className="hidden sm:flex flex-col items-end">
