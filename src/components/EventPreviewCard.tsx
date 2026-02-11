@@ -60,8 +60,8 @@ const EventPreviewCard: React.FC<EventPreviewCardProps> = ({ draft, onChange }) 
                             />
                         </div>
                         {/* Duration Presets */}
-                        <div className="flex gap-2 ml-1">
-                            {[60, 90].map((mins) => (
+                        <div className="flex flex-wrap gap-2 ml-1">
+                            {[60, 90, 120, 240].map((mins) => (
                                 <button
                                     key={mins}
                                     type="button"
@@ -72,7 +72,7 @@ const EventPreviewCard: React.FC<EventPreviewCardProps> = ({ draft, onChange }) 
                                     }}
                                     className="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg text-xs font-bold transition-colors flex items-center gap-1"
                                 >
-                                    +{mins}분
+                                    +{mins >= 60 ? (mins % 60 === 0 ? `${mins / 60}시간` : `${Math.floor(mins / 60)}시간 30분`) : `${mins}분`}
                                 </button>
                             ))}
                             <span className="text-[10px] text-gray-400 self-center font-medium ml-1">시작 시간 기준</span>
