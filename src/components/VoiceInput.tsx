@@ -22,33 +22,50 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript }) => {
 
         const recognition = new SpeechRecognition();
         recognition.lang = "ko-KR";
-        recognition.continuous = true;
-        recognition.interimResults = true;
+        recognition.continuous = false; // 모바일에서는 false가 더 안정적
+        recognition.interimResults = false; // 중간 결과 끄기
 
         recognition.onresult = (event: any) => {
-            let currentTranscript = "";
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-                currentTranscript += event.results[i][0].transcript;
-            }
-            setTranscript(currentTranscript);
+            const lastResult = event.results.length - 1;
+            let speechToText = event.results[lastResult][0].transcript;
+
+            // 안드로이드 특화 텍스트 정제
+            let cleanText = speechToText.replace(/[.,?!]/g, "").trim();
+
+            console.log('원본:', speechToText);
+            console.log('정제됨:', cleanText);
+
+            setTranscript(cleanText);
+            onTranscript(cleanText);
         };
 
         recognition.onend = () => {
             setIsListening(false);
         };
 
+        recognition.onerror = (event: any) => {
+            console.error('음성 인식 에러:', event.error);
+            if (event.error === 'not-allowed') {
+                alert('마이크 권한을 허용해 주세요.');
+            }
+            setIsListening(false);
+        };
+
         recognitionRef.current = recognition;
-    }, []);
+    }, [onTranscript]);
 
     const toggleListening = () => {
         if (isListening) {
             recognitionRef.current?.stop();
-            if (transcript) onTranscript(transcript);
-            setTranscript("");
+            setIsListening(false);
         } else {
             setTranscript("");
-            recognitionRef.current?.start();
-            setIsListening(true);
+            try {
+                recognitionRef.current?.start();
+                setIsListening(true);
+            } catch (err) {
+                console.error("Failed to start recognition:", err);
+            }
         }
     };
 
@@ -66,8 +83,8 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript }) => {
             <button
                 onClick={toggleListening}
                 className={`w-full min-h-[48px] rounded-full flex items-center justify-center gap-2 transition-all font-medium ${isListening
-                        ? "bg-red-500 text-white animate-pulse"
-                        : "bg-indigo-600 text-white hover:bg-indigo-700 active:scale-95"
+                    ? "bg-red-500 text-white animate-pulse"
+                    : "bg-indigo-600 text-white hover:bg-indigo-700 active:scale-95"
                     }`}
             >
                 {isListening ? (
