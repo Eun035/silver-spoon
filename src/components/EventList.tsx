@@ -19,7 +19,12 @@ interface EventListProps {
 
 const EventList: React.FC<EventListProps> = ({ events, onChanged }) => {
     const [editingId, setEditingId] = useState<string | null>(null);
-    const [editTitle, setEditTitle] = useState("");
+    const [editData, setEditData] = useState<{
+        title: string;
+        startISO: string;
+        endISO: string;
+        location: string;
+    } | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
 
     const handleDelete = async (eventId: string) => {
@@ -40,15 +45,24 @@ const EventList: React.FC<EventListProps> = ({ events, onChanged }) => {
     };
 
     const handleUpdate = async (eventId: string) => {
-        if (!editTitle.trim()) return;
+        if (!editData || !editData.title.trim()) return;
         setIsProcessing(true);
         try {
             const resp = await fetch("/api/calendar/update", {
                 method: "PATCH",
-                body: JSON.stringify({ eventId, patch: { title: editTitle } }),
+                body: JSON.stringify({
+                    eventId,
+                    patch: {
+                        title: editData.title,
+                        startISO: editData.startISO,
+                        endISO: editData.endISO,
+                        location: editData.location,
+                    }
+                }),
             });
             if (!resp.ok) throw new Error();
             setEditingId(null);
+            setEditData(null);
             onChanged();
         } catch (error) {
             alert("일정을 수정하지 못했어요.");
@@ -59,7 +73,27 @@ const EventList: React.FC<EventListProps> = ({ events, onChanged }) => {
 
     const startEdit = (event: Event) => {
         setEditingId(event.id);
-        setEditTitle(event.summary);
+        setEditData({
+            title: event.summary,
+            startISO: event.start.dateTime || new Date(event.start.date!).toISOString(),
+            endISO: event.end.dateTime || new Date(event.end.date!).toISOString(),
+            location: event.location || "",
+        });
+    };
+
+    const formatISOForInput = (iso: string) => {
+        const date = new Date(iso);
+        const offset = date.getTimezoneOffset() * 60000;
+        return new Date(date.getTime() - offset).toISOString().slice(0, 16);
+    };
+
+    const handleEditChange = (field: string, value: string) => {
+        if (!editData) return;
+        if (field === "startISO" || field === "endISO") {
+            setEditData({ ...editData, [field]: new Date(value).toISOString() });
+        } else {
+            setEditData({ ...editData, [field]: value });
+        }
     };
 
     const formatDate = (event: Event) => {
@@ -98,26 +132,71 @@ const EventList: React.FC<EventListProps> = ({ events, onChanged }) => {
                 >
                     <div className="flex justify-between items-start gap-4">
                         <div className="flex-1 space-y-3">
-                            {editingId === event.id ? (
-                                <div className="flex gap-2">
-                                    <input
-                                        autoFocus
-                                        value={editTitle}
-                                        onChange={(e) => setEditTitle(e.target.value)}
-                                        className="flex-1 bg-gray-50 border border-indigo-200 rounded-xl px-3 py-2 outline-none font-semibold text-gray-800 focus:bg-white focus:ring-2 focus:ring-indigo-100"
-                                    />
-                                    <button
-                                        onClick={() => handleUpdate(event.id)}
-                                        className="p-2 text-green-600 hover:bg-green-50 rounded-xl transition-colors"
-                                    >
-                                        <Check className="w-5 h-5" />
-                                    </button>
-                                    <button
-                                        onClick={() => setEditingId(null)}
-                                        className="p-2 text-red-500 hover:bg-red-50 rounded-xl transition-colors"
-                                    >
-                                        <X className="w-5 h-5" />
-                                    </button>
+                            {editingId === event.id && editData ? (
+                                <div className="space-y-4 bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100 flex flex-col gap-3">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-xs font-bold text-indigo-600 uppercase">일정 수정</span>
+                                        <div className="flex gap-1">
+                                            <button
+                                                onClick={() => handleUpdate(event.id)}
+                                                className="p-2 text-green-600 hover:bg-green-100 rounded-xl transition-colors"
+                                            >
+                                                <Check className="w-5 h-5" />
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    setEditingId(null);
+                                                    setEditData(null);
+                                                }}
+                                                className="p-2 text-red-500 hover:bg-red-100 rounded-xl transition-colors"
+                                            >
+                                                <X className="w-5 h-5" />
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Title */}
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-bold text-gray-400 ml-1">제목</label>
+                                        <input
+                                            value={editData.title}
+                                            onChange={(e) => handleEditChange("title", e.target.value)}
+                                            className="w-full bg-white border border-gray-100 rounded-xl px-3 py-2 outline-none font-semibold text-gray-800 focus:border-indigo-400"
+                                        />
+                                    </div>
+
+                                    {/* Times */}
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-bold text-gray-400 ml-1">시작</label>
+                                            <input
+                                                type="datetime-local"
+                                                value={formatISOForInput(editData.startISO)}
+                                                onChange={(e) => handleEditChange("startISO", e.target.value)}
+                                                className="w-full bg-white border border-gray-100 rounded-xl px-3 py-2 text-sm font-medium outline-none focus:border-indigo-400"
+                                            />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-bold text-gray-400 ml-1">종료</label>
+                                            <input
+                                                type="datetime-local"
+                                                value={formatISOForInput(editData.endISO)}
+                                                onChange={(e) => handleEditChange("endISO", e.target.value)}
+                                                className="w-full bg-white border border-gray-100 rounded-xl px-3 py-2 text-sm font-medium outline-none focus:border-indigo-400"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Location */}
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-bold text-gray-400 ml-1">장소</label>
+                                        <input
+                                            value={editData.location}
+                                            onChange={(e) => handleEditChange("location", e.target.value)}
+                                            placeholder="장소 추가"
+                                            className="w-full bg-white border border-gray-100 rounded-xl px-3 py-2 text-sm font-medium outline-none focus:border-indigo-400"
+                                        />
+                                    </div>
                                 </div>
                             ) : (
                                 <h3 className="font-bold text-gray-800 text-lg leading-tight group-hover:text-indigo-600 transition-colors">
@@ -125,42 +204,46 @@ const EventList: React.FC<EventListProps> = ({ events, onChanged }) => {
                                 </h3>
                             )}
 
-                            <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
-                                <div className="flex items-center gap-2 text-gray-500 font-medium">
-                                    <div className="p-1 bg-[#F5F7FF] rounded-lg">
-                                        <Clock className="w-4 h-4 text-indigo-500" />
-                                    </div>
-                                    <span>{formatDate(event)}</span>
-                                </div>
-                                {event.location && (
+                            {editingId !== event.id && (
+                                <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
                                     <div className="flex items-center gap-2 text-gray-500 font-medium">
                                         <div className="p-1 bg-[#F5F7FF] rounded-lg">
-                                            <MapPin className="w-4 h-4 text-indigo-500" />
+                                            <Clock className="w-4 h-4 text-indigo-500" />
                                         </div>
-                                        <span className="truncate max-w-[200px]">{event.location}</span>
+                                        <span>{formatDate(event)}</span>
                                     </div>
-                                )}
-                            </div>
+                                    {event.location && (
+                                        <div className="flex items-center gap-2 text-gray-500 font-medium">
+                                            <div className="p-1 bg-[#F5F7FF] rounded-lg">
+                                                <MapPin className="w-4 h-4 text-indigo-500" />
+                                            </div>
+                                            <span className="truncate max-w-[200px]">{event.location}</span>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
 
-                        <div className="flex gap-1">
-                            <button
-                                disabled={isProcessing}
-                                onClick={() => startEdit(event)}
-                                className="p-2.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-2xl transition-all active:scale-90"
-                                title="수정"
-                            >
-                                <Edit2 className="w-5 h-5" />
-                            </button>
-                            <button
-                                disabled={isProcessing}
-                                onClick={() => handleDelete(event.id)}
-                                className="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all active:scale-90"
-                                title="삭제"
-                            >
-                                <Trash2 className="w-5 h-5" />
-                            </button>
-                        </div>
+                        {editingId !== event.id && (
+                            <div className="flex gap-1">
+                                <button
+                                    disabled={isProcessing}
+                                    onClick={() => startEdit(event)}
+                                    className="p-2.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-2xl transition-all active:scale-90"
+                                    title="수정"
+                                >
+                                    <Edit2 className="w-5 h-5" />
+                                </button>
+                                <button
+                                    disabled={isProcessing}
+                                    onClick={() => handleDelete(event.id)}
+                                    className="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all active:scale-90"
+                                    title="삭제"
+                                >
+                                    <Trash2 className="w-5 h-5" />
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             ))}

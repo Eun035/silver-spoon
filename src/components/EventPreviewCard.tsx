@@ -49,14 +49,34 @@ const EventPreviewCard: React.FC<EventPreviewCardProps> = ({ draft, onChange }) 
                 {/* Start Time */}
                 <div className="space-y-1.5">
                     <label className="text-sm font-semibold text-gray-500 ml-1">시작 시간</label>
-                    <div className="relative">
-                        <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                        <input
-                            type="datetime-local"
-                            value={formatISOForInput(draft.startISO)}
-                            onChange={(e) => handleDateChange("startISO", e.target.value)}
-                            className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:bg-white focus:border-indigo-400 outline-none transition-all font-medium"
-                        />
+                    <div className="flex flex-col gap-2">
+                        <div className="relative">
+                            <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <input
+                                type="datetime-local"
+                                value={formatISOForInput(draft.startISO)}
+                                onChange={(e) => handleDateChange("startISO", e.target.value)}
+                                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:bg-white focus:border-indigo-400 outline-none transition-all font-medium"
+                            />
+                        </div>
+                        {/* Duration Presets */}
+                        <div className="flex gap-2 ml-1">
+                            {[60, 90].map((mins) => (
+                                <button
+                                    key={mins}
+                                    type="button"
+                                    onClick={() => {
+                                        const start = new Date(draft.startISO);
+                                        const end = new Date(start.getTime() + mins * 60000);
+                                        onChange({ endISO: end.toISOString() });
+                                    }}
+                                    className="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg text-xs font-bold transition-colors flex items-center gap-1"
+                                >
+                                    +{mins}분
+                                </button>
+                            ))}
+                            <span className="text-[10px] text-gray-400 self-center font-medium ml-1">시작 시간 기준</span>
+                        </div>
                     </div>
                 </div>
 
