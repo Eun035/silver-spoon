@@ -26,10 +26,10 @@ export function parseToDraft(
         title = title.replace(locationMatch[0], "");
     }
 
-    // 2. 날짜 추출
-    if (input.includes("오늘")) {
+    // 2. 날짜 추출 (키워드 확장)
+    if (input.includes("오늘") || input.includes("금일")) {
         hasDate = true;
-    } else if (input.includes("내일")) {
+    } else if (input.includes("내일") || input.includes("명일") || input.includes("익일")) {
         date.setDate(date.getDate() + 1);
         hasDate = true;
     } else if (input.includes("모레")) {
@@ -37,25 +37,44 @@ export function parseToDraft(
         hasDate = true;
     }
 
-    // 요일 추출 (이번 주 토요일, 다음 주 월요일 등)
+    // N일 뒤, N주 뒤 (상대 날짜)
+    const relativeDateMatch = input.match(/(\d+)\s*(일|주|달|개월)\s*(뒤|후|이후)/);
+    if (relativeDateMatch) {
+        const value = parseInt(relativeDateMatch[1]);
+        const unit = relativeDateMatch[2];
+        if (unit === "일") date.setDate(date.getDate() + value);
+        else if (unit === "주") date.setDate(date.getDate() + (value * 7));
+        else if (unit === "달" || unit === "개월") date.setMonth(date.getMonth() + value);
+        hasDate = true;
+        title = title.replace(relativeDateMatch[0], "");
+    }
+
+    // 요일 및 주 단위 추출 (이번 주, 다음 주, 금주, 차주 등)
     const dayMap: { [key: string]: number } = { 일: 0, 월: 1, 화: 2, 수: 3, 목: 4, 금: 5, 토: 6 };
-    const weekdayMatch = input.match(/(이번\s*주|다음\s*주|다다음\s*주)?\s*(월|화|수|목|금|토|일)요일/);
+    // "다음주" 또는 "다음 주" (요일 없이)
+    const weekOnlyMatch = input.match(/(이번|다음|다다음|내|차)\s*주/);
+    const weekdayMatch = input.match(/(이번\s*주|다음\s*주|다다음\s*주|금주|차주|내주)?\s*(월|화|수|목|금|토|일)요일/);
+
     if (weekdayMatch) {
         const weekModifier = weekdayMatch[1] || "";
         const targetDay = dayMap[weekdayMatch[2]];
         const currentDay = date.getDay();
 
         let daysToAdd = targetDay - currentDay;
-        if (weekModifier.includes("다음")) daysToAdd += 7;
+        if (weekModifier.includes("다음") || weekModifier.includes("차주") || weekModifier.includes("내주")) daysToAdd += 7;
         if (weekModifier.includes("다다음")) daysToAdd += 14;
 
-        // "이번 주"인데 이미 지난 요일이면 다음주로 넘기지 않고 이번주 과거로 가거나, 미래의 해당 요일로 설정
-        // 보통 "이번 주 토요일"은 다가올 토요일을 의미함
-        if (daysToAdd <= 0 && weekModifier.includes("이번")) daysToAdd += 7;
+        if (daysToAdd <= 0 && (weekModifier.includes("이번") || weekModifier.includes("금주"))) daysToAdd += 7;
 
         date.setDate(date.getDate() + daysToAdd);
         hasDate = true;
         title = title.replace(weekdayMatch[0], "");
+    } else if (weekOnlyMatch && !hasDate) {
+        const modifier = weekOnlyMatch[1];
+        if (modifier === "다음" || modifier === "내" || modifier === "차") date.setDate(date.getDate() + 7);
+        else if (modifier === "다다음") date.setDate(date.getDate() + 14);
+        hasDate = true;
+        title = title.replace(weekOnlyMatch[0], "");
     }
 
     // M/D 형식 (예: 2/20)
@@ -81,52 +100,100 @@ export function parseToDraft(
     let hours = 9; // 기본값
     let minutes = 0;
 
-    const timeKeywordMatch = input.match(/(새벽|아침|오전|점심|오후|저녁|밤)\s*(\d{1,2})시(?:\s*(\d{1,2})분|반)?/);
-    if (timeKeywordMatch) {
-        const keyword = timeKeywordMatch[1];
-        hours = parseInt(timeKeywordMatch[2]);
+    // 특수 시간 키워드 (정오, 자정)
+    if (input.includes("정오")) {
+        hours = 12;
+        minutes = 0;
+        hasTime = true;
+        title = title.replace("정오", "");
+    } else if (input.includes("자정")) {
+        hours = 0;
+        minutes = 0;
+        hasTime = true;
+        title = title.replace("자정", "");
+    }
 
-        // PM 처리 키워드
-        const isPM = ["점심", "오후", "저녁", "밤"].includes(keyword);
-        if (isPM && hours < 12) {
-            // 12시는 점심/오후일 때 그대로 12시, 그 외엔 +12
-            if (hours !== 12) hours += 12;
-        } else if (!isPM && hours === 12) {
-            // 새벽/아침/오전 12시는 0시
-            hours = 0;
+    // 한글 숫자 시간 (한시 ~ 열두시)
+    const krHours: { [key: string]: number } = {
+        한: 1, 두: 2, 세: 3, 네: 4, 다섯: 5, 여섯: 6, 일곱: 7, 여덟: 8, 아홉: 9, 열: 10, 열한: 11, 열두: 12
+    };
+    const krHourRegex = new RegExp(`(${Object.keys(krHours).join("|")})시(?:\\s*(\\d{1,2})분|반)?`);
+    const krHourMatch = input.match(krHourRegex);
+
+    if (krHourMatch && !hasTime) {
+        hours = krHours[krHourMatch[1]];
+        if (krHourMatch[2]) {
+            minutes = parseInt(krHourMatch[2]);
+        } else if (input.includes(krHourMatch[0].includes("반") ? krHourMatch[0] : krHourMatch[1] + "시반")) {
+            minutes = 30;
         }
 
-        if (timeKeywordMatch[3]) {
-            minutes = parseInt(timeKeywordMatch[3]);
-        } else if (input.includes(timeKeywordMatch[0].includes("반") ? timeKeywordMatch[0] : timeKeywordMatch[2] + "시반")) {
-            if (input.includes(timeKeywordMatch[2] + "시반") || timeKeywordMatch[0].includes("반")) {
-                minutes = 30;
-            }
+        // 오전/오후 문맥 확인
+        const context = input.match(/(오전|오후|새벽|아침|점심|저녁|밤)/);
+        if (context) {
+            const isPM = ["오후", "점심", "저녁", "밤"].includes(context[1]);
+            if (isPM && hours < 12) hours += 12;
+            else if (!isPM && hours === 12) hours = 0;
+        } else if (hours < 9) { // 9시 미만은 보통 오후로 가이드 (예: 6시 반 -> 18:30)
+            hours += 12;
         }
         hasTime = true;
-        title = title.replace(timeKeywordMatch[0], "").replace(timeKeywordMatch[2] + "시반", "");
-    } else {
-        // 일반 "N시 N분/반" (키워드 없음)
-        const simpleTimeMatch = input.match(/(\d{1,2})시(?:\s*(\d{1,2})분|반)?/);
-        if (simpleTimeMatch) {
-            hours = parseInt(simpleTimeMatch[1]);
-            if (simpleTimeMatch[2]) {
-                minutes = parseInt(simpleTimeMatch[2]);
-            } else if (input.includes(simpleTimeMatch[1] + "시반")) {
+        title = title.replace(krHourMatch[0], "").replace(krHourMatch[1] + "시반", "");
+    }
+
+    // 숫자 기반 시간 추출
+    if (!hasTime) {
+        const timeKeywordMatch = input.match(/(새벽|아침|오전|점심|오후|저녁|밤)\s*(\d{1,2})시(?:\s*(\d{1,2})분|반)?/);
+        if (timeKeywordMatch) {
+            const keyword = timeKeywordMatch[1];
+            hours = parseInt(timeKeywordMatch[2]);
+            const isPM = ["점심", "오후", "저녁", "밤"].includes(keyword);
+            if (isPM && hours < 12) {
+                if (hours !== 12) hours += 12;
+            } else if (!isPM && hours === 12) {
+                hours = 0;
+            }
+            if (timeKeywordMatch[3]) {
+                minutes = parseInt(timeKeywordMatch[3]);
+            } else if (input.includes(timeKeywordMatch[0].includes("반") ? timeKeywordMatch[0] : timeKeywordMatch[2] + "시반")) {
                 minutes = 30;
             }
-            // 키워드 없으면 현재 시간 기준으로 오전/오후 추측 가능하나 여기선 오전으로 우선 처리
             hasTime = true;
-            title = title.replace(simpleTimeMatch[0], "").replace(simpleTimeMatch[1] + "시반", "");
-        }
+            title = title.replace(timeKeywordMatch[0], "").replace(timeKeywordMatch[2] + "시반", "");
+        } else {
+            const simpleTimeMatch = input.match(/(\d{1,2})시(?:\s*(\d{1,2})분|반)?/);
+            if (simpleTimeMatch) {
+                hours = parseInt(simpleTimeMatch[1]);
+                if (simpleTimeMatch[2]) {
+                    minutes = parseInt(simpleTimeMatch[2]);
+                } else if (input.includes(simpleTimeMatch[1] + "시반")) {
+                    minutes = 30;
+                }
+                if (hours < 9) hours += 12;
+                hasTime = true;
+                title = title.replace(simpleTimeMatch[0], "").replace(simpleTimeMatch[1] + "시반", "");
+            }
 
-        // 24시간 형식 (15:30)
-        const isoTimeMatch = input.match(/(\d{1,2}):(\d{2})/);
-        if (isoTimeMatch) {
-            hours = parseInt(isoTimeMatch[1]);
-            minutes = parseInt(isoTimeMatch[2]);
-            hasTime = true;
-            title = title.replace(isoTimeMatch[0], "");
+            // N시간 뒤, N분 뒤 (상대 시간)
+            const relativeTimeMatch = input.match(/(\d+)\s*(시간|분)\s*(뒤|후|이후)/);
+            if (relativeTimeMatch && !hasTime) {
+                const value = parseInt(relativeTimeMatch[1]);
+                const unit = relativeTimeMatch[2];
+                if (unit === "시간") date.setHours(date.getHours() + value);
+                else if (unit === "분") date.setMinutes(date.getMinutes() + value);
+                hours = date.getHours();
+                minutes = date.getMinutes();
+                hasTime = true;
+                title = title.replace(relativeTimeMatch[0], "");
+            }
+
+            const isoTimeMatch = input.match(/(\d{1,2}):(\d{2})/);
+            if (isoTimeMatch) {
+                hours = parseInt(isoTimeMatch[1]);
+                minutes = parseInt(isoTimeMatch[2]);
+                hasTime = true;
+                title = title.replace(isoTimeMatch[0], "");
+            }
         }
     }
 
@@ -149,11 +216,11 @@ export function parseToDraft(
     const endDate = new Date(date.getTime() + durationMinutes * 60000);
     const endISO = endDate.toISOString();
 
-    // 제목 정제 (특수문자 및 불필요한 조사/키워드 제거)
-    const keywords = "오늘|내일|모레|이번|다음|주|요일|새벽|아침|오전|점심|오후|저녁|밤|장소|시간|분|반|시";
+    // 제목 정제
+    const keywords = "오늘|내일|모레|금일|명일|익일|이번|다음|다다음|내|금주|차주|주|요일|새벽|아침|오전|점심|정오|자정|오후|저녁|밤|장소|시간|분|반|시|뒤|후|이후";
     const keywordRegex = new RegExp(`(${keywords})`, "g");
-    title = title.replace(keywordRegex, "").replace(/[@]/g, "").trim();
-    title = title.replace(/^\s*([가-힣]{1,2}요일)\s*/, ""); // 요일 단독 남은 경우 제거
+    title = title.replace(keywordRegex, "").replace(/[@\d]/g, "").replace(/\//g, "").replace(/-/g, "").replace(/\s+/g, " ").trim();
+    title = title.replace(/^\s*([가-힣]{1,2}요일)\s*/, "");
     if (!title || title.length < 1) title = "새 일정";
 
     return {
