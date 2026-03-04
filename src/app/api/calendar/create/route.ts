@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { google } from "googleapis";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
+import { getCalendarClient } from "@/services/calendarClient";
 
 export async function POST(req: NextRequest) {
     const session = (await getServerSession(authOptions)) as any;
@@ -23,18 +24,30 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const auth = new google.auth.OAuth2();
-        auth.setCredentials({ access_token: session.accessToken });
-        const calendar = google.calendar({ version: "v3", auth });
+        const calendar = getCalendarClient(session.accessToken);
+
+        const requestBody: any = {
+            summary: draft.title,
+            location: draft.location,
+            start: { dateTime: draft.startISO },
+            end: { dateTime: draft.endISO },
+        };
+
+        if (draft.reminders && draft.reminders.length > 0) {
+            requestBody.reminders = {
+                useDefault: false,
+                overrides: draft.reminders.map((minutes: number) => ({ method: "popup", minutes })),
+            };
+        } else if (draft.reminders && draft.reminders.length === 0) {
+            requestBody.reminders = {
+                useDefault: false,
+                overrides: [],
+            };
+        }
 
         const response = await calendar.events.insert({
             calendarId: "primary",
-            requestBody: {
-                summary: draft.title,
-                location: draft.location,
-                start: { dateTime: draft.startISO },
-                end: { dateTime: draft.endISO },
-            },
+            requestBody,
         });
 
         return NextResponse.json({

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { EventDraft } from "@/services/nlpParser";
-import { Clock, MapPin, Calendar, CheckCircle2, AlertCircle } from "lucide-react";
+import { Clock, MapPin, Calendar, CheckCircle2, AlertCircle, Bell } from "lucide-react";
 
 interface EventPreviewCardProps {
     draft: EventDraft;
@@ -113,6 +113,57 @@ const EventPreviewCard: React.FC<EventPreviewCardProps> = ({ draft, onChange }) 
                             placeholder="장소 없음"
                             className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:bg-white focus:border-indigo-400 outline-none transition-all font-medium"
                         />
+                    </div>
+                </div>
+
+                {/* Reminder */}
+                <div className="space-y-1.5">
+                    <label className="text-sm font-semibold text-gray-500 ml-1">알림 (다중 선택 가능)</label>
+                    <div className="flex bg-gray-50 border border-gray-100 rounded-xl p-1.5 overflow-x-auto hide-scrollbar">
+                        <button
+                            type="button"
+                            onClick={() => onChange({ reminders: [] })}
+                            className={`flex-shrink-0 px-3 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-1.5 mr-2 ${(!draft.reminders || draft.reminders.length === 0)
+                                ? "bg-indigo-600 text-white shadow-md"
+                                : "text-gray-500 hover:bg-white hover:text-gray-900"
+                                }`}
+                        >
+                            {(!draft.reminders || draft.reminders.length === 0) && <Bell className="w-4 h-4" />}
+                            없음
+                        </button>
+                        {[
+                            { label: "정시", value: 0 },
+                            { label: "5분 전", value: 5 },
+                            { label: "10분 전", value: 10 },
+                            { label: "30분 전", value: 30 },
+                            { label: "1시간 전", value: 60 },
+                            { label: "1일 전", value: 1440 },
+                        ].map((option) => {
+                            const isSelected = draft.reminders?.includes(option.value);
+                            return (
+                                <button
+                                    key={option.label}
+                                    type="button"
+                                    onClick={() => {
+                                        const currentReminders = draft.reminders || [];
+                                        let newReminders;
+                                        if (isSelected) {
+                                            newReminders = currentReminders.filter((r) => r !== option.value);
+                                        } else {
+                                            newReminders = [...currentReminders, option.value].sort((a, b) => a - b);
+                                        }
+                                        onChange({ reminders: newReminders });
+                                    }}
+                                    className={`flex-shrink-0 px-3 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-1.5 ${isSelected
+                                        ? "bg-indigo-600 text-white shadow-md"
+                                        : "text-gray-500 hover:bg-white hover:text-gray-900"
+                                        }`}
+                                >
+                                    {isSelected && <Bell className="w-4 h-4" />}
+                                    {option.label}
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
             </div>

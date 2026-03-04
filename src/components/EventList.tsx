@@ -166,7 +166,7 @@ const EventList: React.FC<EventListProps> = ({ events, onChanged }) => {
                                     </div>
 
                                     {/* Times */}
-                                    <div className="grid grid-cols-2 gap-3">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         <div className="space-y-1">
                                             <label className="text-[10px] font-bold text-gray-400 ml-1">시작</label>
                                             <input

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { google } from "googleapis";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
+import { getCalendarClient } from "@/services/calendarClient";
 
 export async function PATCH(req: NextRequest) {
     const session = (await getServerSession(authOptions)) as any;
@@ -23,15 +24,25 @@ export async function PATCH(req: NextRequest) {
             );
         }
 
-        const auth = new google.auth.OAuth2();
-        auth.setCredentials({ access_token: session.accessToken });
-        const calendar = google.calendar({ version: "v3", auth });
+        const calendar = getCalendarClient(session.accessToken);
 
         const requestBody: any = {};
         if (patch.title) requestBody.summary = patch.title;
         if (patch.location !== undefined) requestBody.location = patch.location;
         if (patch.startISO) requestBody.start = { dateTime: patch.startISO };
         if (patch.endISO) requestBody.end = { dateTime: patch.endISO };
+
+        if (patch.reminders && patch.reminders.length > 0) {
+            requestBody.reminders = {
+                useDefault: false,
+                overrides: patch.reminders.map((minutes: number) => ({ method: "popup", minutes })),
+            };
+        } else if (patch.reminders && patch.reminders.length === 0) {
+            requestBody.reminders = {
+                useDefault: false,
+                overrides: [],
+            };
+        }
 
         const response = await calendar.events.patch({
             calendarId: "primary",

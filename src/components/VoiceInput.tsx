@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { Mic, MicOff, AlertCircle } from "lucide-react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { Mic, MicOff, AlertCircle, Loader2 } from "lucide-react";
 
 interface VoiceInputProps {
     onTranscript: (text: string) => void;
@@ -11,7 +11,17 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript }) => {
     const [isListening, setIsListening] = useState(false);
     const [isSupported, setIsSupported] = useState(true);
     const [transcript, setTranscript] = useState("");
+    const [interimTranscript, setInterimTranscript] = useState("");
+
+    // Refs to keep track of state inside event handlers without re-running useEffect
     const recognitionRef = useRef<any>(null);
+    const transcriptRef = useRef("");
+    const onTranscriptRef = useRef(onTranscript);
+
+    // Update the onTranscript ref when the prop changes
+    useEffect(() => {
+        onTranscriptRef.current = onTranscript;
+    }, [onTranscript]);
 
     useEffect(() => {
         const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -22,25 +32,34 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript }) => {
 
         const recognition = new SpeechRecognition();
         recognition.lang = "ko-KR";
-        recognition.continuous = false; // 모바일에서는 false가 더 안정적
-        recognition.interimResults = false; // 중간 결과 끄기
+        recognition.continuous = true;
+        recognition.interimResults = true;
 
         recognition.onresult = (event: any) => {
-            const lastResult = event.results.length - 1;
-            let speechToText = event.results[lastResult][0].transcript;
+            let finalPart = "";
+            let interimPart = "";
 
-            // 안드로이드 특화 텍스트 정제
-            let cleanText = speechToText.replace(/[.,?!]/g, "").trim();
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                const text = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    finalPart += text;
+                } else {
+                    interimPart += text;
+                }
+            }
 
-            console.log('원본:', speechToText);
-            console.log('정제됨:', cleanText);
+            if (finalPart) {
+                // Remove trailing punctuation and accumulate
+                const cleanText = finalPart.replace(/[.,?!]/g, "").trim();
+                const newFullTranscript = (transcriptRef.current + " " + cleanText).trim();
 
-            setTranscript(cleanText);
-            onTranscript(cleanText);
-        };
-
-        recognition.onend = () => {
-            setIsListening(false);
+                transcriptRef.current = newFullTranscript;
+                setTranscript(newFullTranscript);
+                onTranscriptRef.current(newFullTranscript);
+                setInterimTranscript("");
+            } else {
+                setInterimTranscript(interimPart);
+            }
         };
 
         recognition.onerror = (event: any) => {
@@ -51,23 +70,41 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript }) => {
             setIsListening(false);
         };
 
-        recognitionRef.current = recognition;
-    }, [onTranscript]);
+        recognition.onend = () => {
+            // SpeechRecognition often stops on mobile when user stops talking
+            // For continuous experience, we could restart it if isListening is still true,
+            // but for simplicity, we'll just update the state.
+            setIsListening(false);
+        };
 
-    const toggleListening = () => {
+        recognitionRef.current = recognition;
+
+        return () => {
+            if (recognitionRef.current) {
+                recognitionRef.current.stop();
+            }
+        };
+    }, []); // Run once on mount
+
+    const toggleListening = useCallback(() => {
         if (isListening) {
             recognitionRef.current?.stop();
             setIsListening(false);
+            setInterimTranscript("");
         } else {
+            // Reset for new recording
+            transcriptRef.current = "";
             setTranscript("");
+            setInterimTranscript("");
             try {
                 recognitionRef.current?.start();
                 setIsListening(true);
             } catch (err) {
                 console.error("Failed to start recognition:", err);
+                setIsListening(false);
             }
         }
-    };
+    }, [isListening]);
 
     if (!isSupported) {
         return (
@@ -82,26 +119,55 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript }) => {
         <div className="flex flex-col items-center gap-4 w-full">
             <button
                 onClick={toggleListening}
-                className={`w-full min-h-[48px] rounded-full flex items-center justify-center gap-2 transition-all font-medium ${isListening
-                    ? "bg-red-500 text-white animate-pulse"
-                    : "bg-indigo-600 text-white hover:bg-indigo-700 active:scale-95"
+                className={`w-full min-h-[56px] rounded-2xl flex items-center justify-center gap-3 transition-all font-bold text-lg shadow-lg ${isListening
+                    ? "bg-red-500 text-white shadow-red-100 animate-pulse ring-4 ring-red-50"
+                    : "bg-indigo-600 text-white hover:bg-indigo-700 active:scale-95 shadow-indigo-100"
                     }`}
             >
                 {isListening ? (
                     <>
-                        <MicOff className="w-5 h-5" />
-                        <span>듣는 중... (중지)</span>
+                        <MicOff className="w-6 h-6" />
+                        <span>듣고 있어요... (중지)</span>
                     </>
                 ) : (
                     <>
-                        <Mic className="w-5 h-5" />
+                        <Mic className="w-6 h-6" />
                         <span>음성으로 일정 말하기</span>
                     </>
                 )}
             </button>
-            {isListening && transcript && (
-                <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 w-full text-center">
-                    <p className="text-gray-600 italic">"{transcript}"</p>
+
+            {(isListening || transcript) && (
+                <div className="p-6 bg-gray-50 rounded-[24px] border border-dashed border-gray-300 w-full min-h-[100px] flex flex-col justify-center items-center gap-3 relative overflow-hidden">
+                    {isListening && !transcript && !interimTranscript && (
+                        <div className="flex flex-col items-center gap-2 opacity-40">
+                            <Loader2 className="w-6 h-6 animate-spin" />
+                            <p className="text-sm font-medium">말씀해 주세요</p>
+                        </div>
+                    )}
+
+                    <div className="text-center space-y-2">
+                        {transcript && (
+                            <p className="text-gray-800 font-bold text-lg leading-relaxed">
+                                {transcript}
+                            </p>
+                        )}
+                        {interimTranscript && (
+                            <p className="text-indigo-400 font-bold text-lg animate-pulse">
+                                {interimTranscript}
+                            </p>
+                        )}
+                    </div>
+
+                    {isListening && (
+                        <div className="absolute top-3 right-3">
+                            <div className="flex gap-1 items-end h-4">
+                                <div className="w-1 bg-red-400 rounded-full animate-[bounce_1s_infinite_0ms]" style={{ height: '60%' }}></div>
+                                <div className="w-1 bg-red-400 rounded-full animate-[bounce_1s_infinite_200ms]" style={{ height: '100%' }}></div>
+                                <div className="w-1 bg-red-400 rounded-full animate-[bounce_1s_infinite_400ms]" style={{ height: '70%' }}></div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
         </div>

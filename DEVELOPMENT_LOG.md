@@ -38,6 +38,19 @@
 - **오류 해결**: API 라우트의 임포트 경로를 절대 경로 별칭(`@/`)으로 통일하여 빌드 에러 해결
 - **보안**: `.gitignore` 및 안전한 `NEXTAUTH_SECRET` 환경 변수 설정
 - **가이드 제작**: Vercel 배포를 위한 Google Cloud Console 설정 체크리스트 및 검증 시나리오 문서화
+- **Sprint 6: 모바일 및 웹 호환성 최적화**:
+  - 음성 인식 안정화 (Ref 기반 상태 관리로 끊김 방지)
+  - NLP 파서 정교화 (제목 내 숫자 보존 로직 추가)
+  - 반응형 UI 개선 (모바일 화면 입력 폼 스택 처리 및 여백 조정)
+
+## ⏰ 7단계: 사용자 맞춤형 알림(Reminder) 시스템 도입
+- **NLP 파서 확장 (`nlpParser.ts`)**:
+  - `EventDraft` 인터페이스에 다중 알림 지원을 위해 `reminders` 속성(숫자 배열) 추가 (기본값 `[30]` 반영).
+- **UI/UX 개선 (`EventPreviewCard.tsx`)**:
+  - 사용자 친화적인 알람 다중 선택 옵션 UI 구현 (`[없음]`, `[정시]`, `[5분 전]`, `[10분 전]`, `[30분 전]`, `[1시간 전]`, `[1일 전]`).
+  - 배열 형태의 데이터 관리를 통해 여러 개의 알람 시간을 동시에 선택하고 해제할 수 있도록 토글 버튼 로직 적용.
+- **API 연동 (`api/calendar/create`, `api/calendar/update`)**:
+  - `requestBody.reminders` 속성에 `useDefault: false`와 `overrides: draft.reminders.map(...)` 포맷을 활용하여 Google Calendar 측으로 배열 내 모든 알림 데이터를 전송.
 
 ---
 

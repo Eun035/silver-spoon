@@ -135,9 +135,9 @@ export default function Home() {
                     <h1 className="text-xl font-black text-indigo-900 tracking-tighter uppercase italic">Cal.AI</h1>
                 </div>
                 <div className="flex items-center gap-4">
-                    <div className="hidden sm:flex flex-col items-end">
-                        <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Signed in as</span>
-                        <span className="text-sm font-bold text-gray-800">{session?.user?.name}</span>
+                    <div className="hidden xs:flex flex-col items-end">
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Signed in as</span>
+                        <span className="text-xs font-bold text-gray-800">{session?.user?.name}</span>
                     </div>
                     <button
                         onClick={() => signOut()}
@@ -184,14 +184,14 @@ export default function Home() {
                         </div>
                     </div>
 
-                    <div className="bg-white p-8 rounded-[32px] shadow-xl shadow-indigo-100/50 border border-white flex flex-col gap-6">
+                    <div className="bg-white p-5 sm:p-8 rounded-[32px] shadow-xl shadow-indigo-100/50 border border-white flex flex-col gap-6">
                         {inputMode === "voice" ? (
-                            <VoiceInput onTranscript={(text) => {
+                            <VoiceInput onTranscript={useCallback((text: string) => {
                                 setRawText(text);
                                 const { draft, error } = parseToDraft(text);
                                 if (draft) setDraft(draft);
                                 if (error) setParseError(error);
-                            }} />
+                            }, [])} />
                         ) : (
                             <TextInput value={rawText} onChange={setRawText} onParse={handleParse} />
                         )}

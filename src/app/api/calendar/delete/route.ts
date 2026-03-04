@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { google } from "googleapis";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
+import { getCalendarClient } from "@/services/calendarClient";
 
 export async function DELETE(req: NextRequest) {
     const session = (await getServerSession(authOptions)) as any;
@@ -23,9 +24,7 @@ export async function DELETE(req: NextRequest) {
             );
         }
 
-        const auth = new google.auth.OAuth2();
-        auth.setCredentials({ access_token: session.accessToken });
-        const calendar = google.calendar({ version: "v3", auth });
+        const calendar = getCalendarClient(session.accessToken);
 
         await calendar.events.delete({
             calendarId: "primary",
