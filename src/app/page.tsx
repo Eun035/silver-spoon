@@ -26,7 +26,7 @@ export default function Home() {
     const [error, setError] = useState<string | null>(null);
 
     // New states for Sprint 3
-    const [inputMode, setInputMode] = useState<"text" | "voice">("text");
+    const [inputMode, setInputMode] = useState<"text" | "voice">("voice");
     const [rawText, setRawText] = useState("");
     const [draft, setDraft] = useState<EventDraft | null>(null);
     const [parseError, setParseError] = useState<string | null>(null);
