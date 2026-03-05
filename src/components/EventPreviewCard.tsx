@@ -250,27 +250,60 @@ const EventPreviewCard: React.FC<EventPreviewCardProps> = ({ draft, onChange }) 
                     </div>
                 </div>
 
+                {/* Quick Reminders */}
+                <div className="space-y-1.5">
+                    <label className="text-sm font-semibold text-gray-500 ml-1">알림</label>
+                    <div className="flex flex-wrap gap-2 ml-1">
+                        <button
+                            type="button"
+                            onClick={() => onChange({ reminders: [] })}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1 ${(!draft.reminders || draft.reminders.length === 0) ? "bg-indigo-500 text-white shadow-sm" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
+                        >
+                            <Bell className="w-3 h-3" /> 없음
+                        </button>
+                        {[
+                            { label: "정시", value: 0 },
+                            { label: "10분 전", value: 10 },
+                            { label: "30분 전", value: 30 },
+                            { label: "1시간 전", value: 60 },
+                            { label: "1일 전", value: 1440 },
+                        ].map((option) => {
+                            const isSelected = draft.reminders?.includes(option.value);
+                            return (
+                                <button
+                                    key={option.label}
+                                    type="button"
+                                    onClick={() => {
+                                        const currentReminders = draft.reminders || [];
+                                        let newReminders;
+                                        if (isSelected) {
+                                            newReminders = currentReminders.filter((r) => r !== option.value);
+                                        } else {
+                                            newReminders = [...currentReminders, option.value].sort((a, b) => a - b);
+                                        }
+                                        onChange({ reminders: newReminders });
+                                    }}
+                                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1 ${isSelected ? "bg-indigo-500 text-white shadow-sm" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
+                                >
+                                    {option.label}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+
                 {/* Minimized AI Tags Section */}
-                {(draft.colorId || (draft.reminders && draft.reminders.length > 0)) && (
+                {draft.colorId && (
                     <div className="pt-2 border-t border-gray-100 flex flex-wrap gap-2 items-center">
                         <span className="text-xs font-bold text-indigo-400 mr-1 flex items-center gap-1">
-                            <Sparkles className="w-3.5 h-3.5" /> AI 자동 지정
+                            <Sparkles className="w-3.5 h-3.5" /> AI 색상 지정
                         </span>
 
-                        {draft.colorId && (
-                            <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-100 px-2.5 py-1 rounded-lg text-xs font-semibold text-gray-700">
-                                <Palette className="w-3.5 h-3.5 text-gray-400" />
-                                <div className={`w-3 h-3 rounded-full ${CALENDAR_COLORS.find(c => c.id === draft.colorId)?.bg || 'bg-gray-300'}`} />
-                                {CALENDAR_COLORS.find(c => c.id === draft.colorId)?.name}
-                            </div>
-                        )}
-
-                        {draft.reminders && draft.reminders.map((mins) => (
-                            <div key={mins} className="flex items-center gap-1.5 bg-gray-50 border border-gray-100 px-2.5 py-1 rounded-lg text-xs font-semibold text-gray-700">
-                                <Bell className="w-3.5 h-3.5 text-gray-400" />
-                                {mins === 0 ? "정시" : mins === 1440 ? "1일 전" : mins >= 60 ? `${mins / 60}시간 전` : `${mins}분 전`}
-                            </div>
-                        ))}
+                        <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-100 px-2.5 py-1 rounded-lg text-xs font-semibold text-gray-700">
+                            <Palette className="w-3.5 h-3.5 text-gray-400" />
+                            <div className={`w-3 h-3 rounded-full ${CALENDAR_COLORS.find(c => c.id === draft.colorId)?.bg || 'bg-gray-300'}`} />
+                            {CALENDAR_COLORS.find(c => c.id === draft.colorId)?.name}
+                        </div>
                     </div>
                 )}
             </div>
