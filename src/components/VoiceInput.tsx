@@ -24,71 +24,84 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript }) => {
     }, [onTranscript]);
 
     useEffect(() => {
-        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            setIsSupported(false);
-            return;
-        }
+        try {
+            const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                setIsSupported(false);
+                return;
+            }
 
-        const recognition = new SpeechRecognition();
-        recognition.lang = "ko-KR";
-        recognition.continuous = true;
-        recognition.interimResults = true;
+            const recognition = new SpeechRecognition();
+            recognition.lang = "ko-KR";
+            recognition.continuous = true;
+            recognition.interimResults = true;
 
-        recognition.onresult = (event: any) => {
-            let finalPart = "";
-            let interimPart = "";
+            recognition.onresult = (event: any) => {
+                let finalPart = "";
+                let interimPart = "";
 
-            for (let i = event.resultIndex; i < event.results.length; ++i) {
-                const text = event.results[i][0].transcript;
-                if (event.results[i].isFinal) {
-                    finalPart += text;
-                } else {
-                    interimPart += text;
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    const text = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalPart += text;
+                    } else {
+                        interimPart += text;
+                    }
                 }
-            }
 
-            if (finalPart) {
-                // Remove trailing punctuation and accumulate
-                const cleanText = finalPart.replace(/[.,?!]/g, "").trim();
-                const newFullTranscript = (transcriptRef.current + " " + cleanText).trim();
+                if (finalPart) {
+                    const cleanText = finalPart.replace(/[.,?!]/g, "").trim();
+                    const newFullTranscript = (transcriptRef.current + " " + cleanText).trim();
 
-                transcriptRef.current = newFullTranscript;
-                setTranscript(newFullTranscript);
-                onTranscriptRef.current(newFullTranscript);
-                setInterimTranscript("");
-            } else {
-                setInterimTranscript(interimPart);
-            }
-        };
+                    transcriptRef.current = newFullTranscript;
+                    setTranscript(newFullTranscript);
+                    onTranscriptRef.current(newFullTranscript);
+                    setInterimTranscript("");
+                } else {
+                    setInterimTranscript(interimPart);
+                }
+            };
 
-        recognition.onerror = (event: any) => {
-            console.error('음성 인식 에러:', event.error);
-            if (event.error === 'not-allowed') {
-                alert('마이크 권한을 허용해 주세요.');
-            }
-            setIsListening(false);
-        };
+            recognition.onerror = (event: any) => {
+                console.error('음성 인식 에러:', event.error);
+                if (event.error === 'not-allowed') {
+                    alert('마이크 권한을 허용해 주세요.');
+                }
+                setIsListening(false);
+            };
 
-        recognition.onend = () => {
-            // SpeechRecognition often stops on mobile when user stops talking
-            // For continuous experience, we could restart it if isListening is still true,
-            // but for simplicity, we'll just update the state.
-            setIsListening(false);
-        };
+            recognition.onend = () => {
+                setIsListening(false);
+            };
 
-        recognitionRef.current = recognition;
+            recognitionRef.current = recognition;
+        } catch (error) {
+            console.error("Speech Recognition initialization failed:", error);
+            setIsSupported(false);
+        }
 
         return () => {
             if (recognitionRef.current) {
-                recognitionRef.current.stop();
+                try {
+                    recognitionRef.current.stop();
+                } catch (e) {
+                    // Ignore stop errors on unmount
+                }
             }
         };
     }, []); // Run once on mount
 
     const toggleListening = useCallback(() => {
+        if (!recognitionRef.current) {
+            alert("해당 기기 및 브라우저에서는 음성 인식을 시작할 수 없어요.");
+            setIsListening(false);
+            return;
+        }
+
         if (isListening) {
-            recognitionRef.current?.stop();
+            try {
+                recognitionRef.current.stop();
+            } catch (e) { }
             setIsListening(false);
             setInterimTranscript("");
         } else {
@@ -97,11 +110,12 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript }) => {
             setTranscript("");
             setInterimTranscript("");
             try {
-                recognitionRef.current?.start();
+                recognitionRef.current.start();
                 setIsListening(true);
             } catch (err) {
                 console.error("Failed to start recognition:", err);
                 setIsListening(false);
+                alert("음성 인식을 시작하지 못했어요. 브라우저 설정(마이크 권한)을 확인해 주세요.");
             }
         }
     }, [isListening]);
