@@ -52,18 +52,40 @@ export function parseToDraft(
 
     // 1.6. 색상 (Color ID) 추출
     let colorId: string | undefined = undefined;
-    const COLOR_MAP: { [key: string]: string } = {
-        "회의": "9", "미팅": "9", "면접": "9",             // 9: Blueberry (파란색)
-        "운동": "2", "PT": "2", "헬스": "2", "요가": "2",  // 2: Sage (초록색)
-        "병원": "11", "치과": "11", "검진": "11",          // 11: Tomato (빨간색)
-        "생일": "6", "파티": "6", "기념일": "6",           // 6: Tangerine (주황색)
-        "강의": "10", "수업": "10", "스터디": "10"         // 10: Basil (진초록색)
+
+    // 명시적 색상 키워드 (사용자가 색상 이름을 직접 말한 경우)
+    const EXPLICIT_COLOR_MAP: { [key: string]: string } = {
+        "빨강": "11", "빨간색": "11", "빨간": "11", "레드": "11",
+        "주황": "6", "주황색": "6", "오렌지": "6",
+        "노랑": "5", "노란색": "5", "노란": "5", "옐로우": "5",
+        "초록": "10", "초록색": "10", "녹색": "10", "그린": "10",
+        "파랑": "9", "파란색": "9", "파란": "9", "블루": "9",
+        "보라": "3", "보라색": "3", "퍼플": "3"
     };
 
-    for (const [kw, cid] of Object.entries(COLOR_MAP)) {
+    for (const [kw, cid] of Object.entries(EXPLICIT_COLOR_MAP)) {
         if (input.includes(kw)) {
             colorId = cid;
+            title = title.replace(kw, ""); // 제목에서 색상 단어 제거
             break;
+        }
+    }
+
+    // 상황별 자동 색상 매핑
+    if (!colorId) {
+        const COLOR_MAP: { [key: string]: string } = {
+            "회의": "9", "미팅": "9", "면접": "9",             // 9: Blueberry (파란색)
+            "운동": "5", "PT": "5", "헬스": "5", "요가": "5",  // 5: Banana (노란색)
+            "병원": "11", "치과": "11", "검진": "11",          // 11: Tomato (빨간색)
+            "생일": "6", "파티": "6", "기념일": "6",           // 6: Tangerine (주황색)
+            "강의": "10", "수업": "10", "스터디": "10"         // 10: Basil (진초록색)
+        };
+
+        for (const [kw, cid] of Object.entries(COLOR_MAP)) {
+            if (input.includes(kw)) {
+                colorId = cid;
+                break;
+            }
         }
     }
 

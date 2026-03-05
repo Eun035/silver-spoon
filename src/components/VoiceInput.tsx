@@ -36,65 +36,66 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript }) => {
             recognition.continuous = true;
             recognition.interimResults = true;
 
+            const isAndroid = /Android/i.test(navigator.userAgent);
+
             recognition.onresult = (event: any) => {
-                let validFinals: string[] = [];
+                let finalStr = "";
                 let interimPart = "";
 
-                // Gather all results
                 for (let i = 0; i < event.results.length; ++i) {
                     const text = event.results[i][0].transcript.trim();
                     if (!text) continue;
 
                     if (event.results[i].isFinal) {
-                        validFinals.push(text);
+                        if (finalStr) {
+                            const prevNoSpace = finalStr.replace(/\s+/g, "");
+                            const currNoSpace = text.replace(/\s+/g, "");
+
+                            let isCumul = false;
+
+                            // 1. Typo correction overlap check
+                            if (currNoSpace.length >= prevNoSpace.length * 0.4) {
+                                let matchCount = 0;
+                                const checkLen = Math.min(prevNoSpace.length, currNoSpace.length);
+                                for (let j = 0; j < checkLen; j++) {
+                                    if (prevNoSpace[j] === currNoSpace[j]) matchCount++;
+                                }
+                                if (matchCount >= checkLen * 0.4) {
+                                    isCumul = true;
+                                }
+                            }
+
+                            // 2. Android absolute assumption 
+                            // Android ALWAYS accumulates the phrase in continuous mode.
+                            if (isAndroid && currNoSpace.length >= prevNoSpace.length * 0.8) {
+                                isCumul = true;
+                            }
+
+                            if (isCumul) {
+                                finalStr = text; // Completely replace due to cumulative bug
+                            } else {
+                                finalStr += " " + text;
+                            }
+                        } else {
+                            finalStr = text;
+                        }
                     } else {
                         interimPart += text + " ";
                     }
                 }
 
-                // Deduplicate validFinals for Android Chrome continuous bug
-                // where results[i] contains results[i-1] as a prefix
-                let finalStr = "";
-                for (let i = 0; i < validFinals.length; i++) {
-                    const curr = validFinals[i];
-                    const next = validFinals[i + 1];
-
-                    if (next) {
-                        const normCurr = curr.replace(/\s+/g, "");
-                        const normNext = next.replace(/\s+/g, "");
-                        // If the next chunk completely starts with this chunk, ignore this one
-                        if (normNext.startsWith(normCurr)) {
-                            continue;
-                        }
-                    }
-                    finalStr += (finalStr ? " " : "") + curr;
-                }
-
-                // Clean up interimPart if it contains the final string
                 let displayInterim = interimPart.trim();
                 if (finalStr && displayInterim) {
-                    const normFinal = finalStr.replace(/\s+/g, "");
-                    const normInterim = displayInterim.replace(/\s+/g, "");
-                    if (normInterim.startsWith(normFinal)) {
-                        const finalWords = finalStr.split(/\s+/);
-                        const interimWords = displayInterim.split(/\s+/);
-                        let matchIdx = 0;
-                        while (matchIdx < finalWords.length && matchIdx < interimWords.length) {
-                            if (finalWords[matchIdx] === interimWords[matchIdx]) {
-                                matchIdx++;
-                            } else {
-                                break;
-                            }
-                        }
-                        if (matchIdx > 0) {
-                            displayInterim = interimWords.slice(matchIdx).join(" ");
-                        }
+                    const firstWordF = finalStr.split(/\s+/)[0];
+                    const firstWordI = displayInterim.split(/\s+/)[0];
+                    if (firstWordF === firstWordI) {
+                        // Suppress visual stuttering where interim duplicates final on mobile
+                        displayInterim = "";
                     }
                 }
 
                 setTranscript(finalStr);
 
-                // Only trigger the callback if something meaningful was finalized
                 if (finalStr !== transcriptRef.current) {
                     transcriptRef.current = finalStr;
                     onTranscriptRef.current(finalStr);
