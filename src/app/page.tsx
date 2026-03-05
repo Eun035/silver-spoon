@@ -64,6 +64,13 @@ export default function Home() {
         }
     }, [rawText]);
 
+    const handleVoiceTranscript = useCallback((text: string) => {
+        setRawText(text);
+        const { draft, error } = parseToDraft(text);
+        if (draft) setDraft(draft);
+        if (error) setParseError(error);
+    }, []);
+
     const handleSave = async () => {
         if (!draft) return;
         setIsSaving(true);
@@ -163,35 +170,26 @@ export default function Home() {
                         <div className="flex bg-gray-100 p-1 rounded-xl">
                             <button
                                 onClick={() => setInputMode("text")}
-                                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${inputMode === "text" ? "bg-white text-indigo-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
+                                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-1.5 ${inputMode === "text" ? "bg-white text-indigo-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
                                     }`}
                             >
-                                <div className="flex items-center gap-1.5">
-                                    <MessageSquare className="w-4 h-4" />
-                                    텍스트
-                                </div>
+                                <MessageSquare className="w-4 h-4" />
+                                텍스트
                             </button>
                             <button
                                 onClick={() => setInputMode("voice")}
-                                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${inputMode === "voice" ? "bg-white text-indigo-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
+                                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-1.5 ${inputMode === "voice" ? "bg-white text-indigo-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
                                     }`}
                             >
-                                <div className="flex items-center gap-1.5">
-                                    <Mic className="w-4 h-4" />
-                                    음성
-                                </div>
+                                <Mic className="w-4 h-4" />
+                                음성
                             </button>
                         </div>
                     </div>
 
                     <div className="bg-white p-5 sm:p-8 rounded-[32px] shadow-xl shadow-indigo-100/50 border border-white flex flex-col gap-6">
                         {inputMode === "voice" ? (
-                            <VoiceInput onTranscript={useCallback((text: string) => {
-                                setRawText(text);
-                                const { draft, error } = parseToDraft(text);
-                                if (draft) setDraft(draft);
-                                if (error) setParseError(error);
-                            }, [])} />
+                            <VoiceInput onTranscript={handleVoiceTranscript} />
                         ) : (
                             <TextInput value={rawText} onChange={setRawText} onParse={handleParse} />
                         )}

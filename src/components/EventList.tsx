@@ -123,13 +123,18 @@ const EventList: React.FC<EventListProps> = ({ events, onChanged }) => {
         const date = new Date(dateStr);
         const isAllDay = !event.start.dateTime;
 
-        return date.toLocaleString("ko-KR", {
+        const options: Intl.DateTimeFormatOptions = {
             month: "long",
             day: "numeric",
-            hour: isAllDay ? undefined : "numeric",
-            minute: isAllDay ? undefined : "2-digit",
             hour12: true,
-        }) + (isAllDay ? " (종일)" : "");
+        };
+
+        if (!isAllDay) {
+            options.hour = "numeric";
+            options.minute = "2-digit";
+        }
+
+        return date.toLocaleString("ko-KR", options) + (isAllDay ? " (종일)" : "");
     };
 
     if (events.length === 0) {
@@ -242,8 +247,8 @@ const EventList: React.FC<EventListProps> = ({ events, onChanged }) => {
                             ) : (
                                 <div className="flex items-center gap-3">
                                     <div className={`w-3 h-3 rounded-full shrink-0 shadow-inner ${event.colorId
-                                            ? CALENDAR_COLORS.find(c => c.id === event.colorId)?.bg
-                                            : "bg-indigo-400"
+                                        ? CALENDAR_COLORS.find(c => c.id === event.colorId)?.bg
+                                        : "bg-indigo-400"
                                         }`} />
                                     <h3 className="font-bold text-gray-800 text-lg leading-tight group-hover:text-indigo-600 transition-colors">
                                         {event.summary}
