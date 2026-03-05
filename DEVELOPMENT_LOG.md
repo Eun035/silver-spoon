@@ -52,6 +52,12 @@
 - **API 연동 (`api/calendar/create`, `api/calendar/update`)**:
   - `requestBody.reminders` 속성에 `useDefault: false`와 `overrides: draft.reminders.map(...)` 포맷을 활용하여 Google Calendar 측으로 배열 내 모든 알림 데이터를 전송.
 
+## 🌟 8단계: 지능형 고급 기능 고도화 (Sprint 8)
+- **장소 및 네이버 지도 연동**: "강남역에서 미팅" 인식 후, UI에서 네이버 지도 검색 바로가기 제공.
+- **참석자 자동 식별**: "김팀장" 등 사전 정의된 연락처 키워드 인식 및 이메일 연동 UI 칩 활성화.
+- **컬러 코딩 (Color Coding)**: "회의"(파랑), "운동"(초록), "병원"(빨강) 등 일정의 성격에 따라 구글 캘린더 색상(`colorId`) 자동 분류.
+- **일정 충돌 방지 (Conflict Detection)**: 프리뷰 카드에서 시간 설정 시, 백엔드(`check-conflict` API)와 실시간 통신하여 겹치는 일정이 존재할 경우 ⚠️노란색 경고 배너 출력.
+
 ---
 
 ### 🎨 디자인 철학
