@@ -32,6 +32,14 @@ export async function PATCH(req: NextRequest) {
         if (patch.startISO) requestBody.start = { dateTime: patch.startISO };
         if (patch.endISO) requestBody.end = { dateTime: patch.endISO };
 
+        if (patch.colorId !== undefined) {
+            requestBody.colorId = patch.colorId;
+        }
+
+        if (patch.attendees !== undefined) {
+            requestBody.attendees = patch.attendees;
+        }
+
         if (patch.reminders && patch.reminders.length > 0) {
             requestBody.reminders = {
                 useDefault: false,

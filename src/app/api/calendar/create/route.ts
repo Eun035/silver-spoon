@@ -33,6 +33,14 @@ export async function POST(req: NextRequest) {
             end: { dateTime: draft.endISO },
         };
 
+        if (draft.colorId) {
+            requestBody.colorId = draft.colorId;
+        }
+
+        if (draft.attendees && draft.attendees.length > 0) {
+            requestBody.attendees = draft.attendees;
+        }
+
         if (draft.reminders && draft.reminders.length > 0) {
             requestBody.reminders = {
                 useDefault: false,

@@ -4,6 +4,8 @@ export interface EventDraft {
     endISO: string;
     location?: string;
     reminders?: number[]; // 설정된 알림 시간(분단위) 배열. 빈 배열이면 알림 없음
+    attendees?: { email: string }[];
+    colorId?: string;
 }
 
 export function parseToDraft(
@@ -22,11 +24,47 @@ export function parseToDraft(
     let durationMinutes = 60;
     let location = "";
 
-    // 1. 장소 추출 (@장소 또는 장소 ... )
-    const locationMatch = input.match(/장소\s+([^\s]+)|@([^\s]+)/);
+    // 1. 장소 추출 (@장소 또는 장소 ... 또는 ...에서)
+    const locationMatch = input.match(/장소\s+([^\s]+)|@([^\s]+)|([가-힣a-zA-Z0-9]+)에서/);
     if (locationMatch) {
-        location = locationMatch[1] || locationMatch[2];
+        location = locationMatch[1] || locationMatch[2] || locationMatch[3];
         title = title.replace(locationMatch[0], "");
+    }
+
+    // 1.5. 참석자 추출
+    const attendees: { email: string }[] = [];
+    const CONTACTS: { [key: string]: string } = {
+        "김팀장": "kim@example.com",
+        "이대리": "lee@example.com",
+        "박과장": "park@example.com",
+        "최사원": "choi@example.com",
+        "정프로": "jung@example.com",
+        "대표님": "ceo@example.com"
+    };
+
+    for (const [name, email] of Object.entries(CONTACTS)) {
+        if (input.includes(name)) {
+            attendees.push({ email });
+            // 이름과 조사(과/와/이랑/랑/하고) 제거
+            title = title.replace(new RegExp(`${name}(과|와|이랑|랑|하고)?\\s*`), "");
+        }
+    }
+
+    // 1.6. 색상 (Color ID) 추출
+    let colorId: string | undefined = undefined;
+    const COLOR_MAP: { [key: string]: string } = {
+        "회의": "9", "미팅": "9", "면접": "9",             // 9: Blueberry (파란색)
+        "운동": "2", "PT": "2", "헬스": "2", "요가": "2",  // 2: Sage (초록색)
+        "병원": "11", "치과": "11", "검진": "11",          // 11: Tomato (빨간색)
+        "생일": "6", "파티": "6", "기념일": "6",           // 6: Tangerine (주황색)
+        "강의": "10", "수업": "10", "스터디": "10"         // 10: Basil (진초록색)
+    };
+
+    for (const [kw, cid] of Object.entries(COLOR_MAP)) {
+        if (input.includes(kw)) {
+            colorId = cid;
+            break;
+        }
     }
 
     // 2. 날짜 추출
@@ -189,5 +227,5 @@ export function parseToDraft(
     if (!title) title = "새 일정";
 
     // 기본 알림 30분 전으로 설정 (배열 형태)
-    return { draft: { title, startISO, endISO, location, reminders: [30] } };
+    return { draft: { title, startISO, endISO, location, reminders: [30], attendees, colorId } };
 }

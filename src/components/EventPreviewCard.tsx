@@ -1,8 +1,23 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { EventDraft } from "@/services/nlpParser";
-import { Clock, MapPin, Calendar, CheckCircle2, AlertCircle, Bell } from "lucide-react";
+import { Clock, MapPin, Calendar, CheckCircle2, AlertCircle, Bell, Users, Palette, Map, Plus, X } from "lucide-react";
+
+// Google Calendar Colors
+const CALENDAR_COLORS = [
+    { id: "1", name: "Lavender", bg: "bg-[#7986cb]" },
+    { id: "2", name: "Sage", bg: "bg-[#33b679]" },
+    { id: "3", name: "Grape", bg: "bg-[#8e24aa]" },
+    { id: "4", name: "Flamingo", bg: "bg-[#e67c73]" },
+    { id: "5", name: "Banana", bg: "bg-[#f6c026]" },
+    { id: "6", name: "Tangerine", bg: "bg-[#f5511d]" },
+    { id: "7", name: "Peacock", bg: "bg-[#039be5]" },
+    { id: "8", name: "Graphite", bg: "bg-[#616161]" },
+    { id: "9", name: "Blueberry", bg: "bg-[#3f51b5]" },
+    { id: "10", name: "Basil", bg: "bg-[#0b8043]" },
+    { id: "11", name: "Tomato", bg: "bg-[#d50000]" },
+];
 
 interface EventPreviewCardProps {
     draft: EventDraft;
@@ -11,6 +26,35 @@ interface EventPreviewCardProps {
 
 const EventPreviewCard: React.FC<EventPreviewCardProps> = ({ draft, onChange }) => {
     const isInvalid = new Date(draft.startISO) >= new Date(draft.endISO);
+    const [newAttendee, setNewAttendee] = useState("");
+    const [conflicts, setConflicts] = useState<{ title: string }[]>([]);
+
+    useEffect(() => {
+        if (!draft.startISO || !draft.endISO || isInvalid) {
+            setConflicts([]);
+            return;
+        }
+
+        const checkConflict = async () => {
+            try {
+                const res = await fetch("/api/calendar/check-conflict", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ startISO: draft.startISO, endISO: draft.endISO }),
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    setConflicts(data.conflicts || []);
+                }
+            } catch (err) {
+                console.error("Conflict check failed", err);
+            }
+        };
+
+        // Debounce for 500ms
+        const timer = setTimeout(checkConflict, 500);
+        return () => clearTimeout(timer);
+    }, [draft.startISO, draft.endISO, isInvalid]);
 
     const formatISOForInput = (iso: string) => {
         const date = new Date(iso);
@@ -30,6 +74,21 @@ const EventPreviewCard: React.FC<EventPreviewCardProps> = ({ draft, onChange }) 
                 <CheckCircle2 className="w-6 h-6" />
                 <span>일정을 확인해 주세요</span>
             </div>
+
+            {conflicts.length > 0 && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 flex items-start gap-3 text-yellow-800 text-sm animate-in fade-in">
+                    <AlertCircle className="w-5 h-5 shrink-0 text-yellow-600 mt-0.5" />
+                    <div>
+                        <p className="font-bold mb-1">이 시간에 진행 중인 다른 일정이 있습니다.</p>
+                        <ul className="list-disc list-inside space-y-0.5 text-yellow-700 font-medium mb-1">
+                            {conflicts.map((c, i) => (
+                                <li key={i}>{c.title}</li>
+                            ))}
+                        </ul>
+                        <p className="text-xs text-yellow-600">이대로 저장 버튼을 누르면 일정이 겹친 상태로 캘린더에 곧바로 등록됩니다.</p>
+                    </div>
+                </div>
+            )}
 
             <div className="space-y-4">
                 {/* Title */}
@@ -104,15 +163,116 @@ const EventPreviewCard: React.FC<EventPreviewCardProps> = ({ draft, onChange }) 
                 {/* Location */}
                 <div className="space-y-1.5">
                     <label className="text-sm font-semibold text-gray-500 ml-1">장소 (선택)</label>
-                    <div className="relative">
-                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                        <input
-                            type="text"
-                            value={draft.location || ""}
-                            onChange={(e) => onChange({ location: e.target.value })}
-                            placeholder="장소 없음"
-                            className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:bg-white focus:border-indigo-400 outline-none transition-all font-medium"
+                    <div className="flex gap-2">
+                        <div className="relative flex-1">
+                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <input
+                                type="text"
+                                value={draft.location || ""}
+                                onChange={(e) => onChange({ location: e.target.value })}
+                                placeholder="장소 없음"
+                                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:bg-white focus:border-indigo-400 outline-none transition-all font-medium"
+                            />
+                        </div>
+                        {draft.location && (
+                            <a
+                                href={`https://map.naver.com/v5/search/${encodeURIComponent(draft.location)}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center justify-center px-4 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 transition-colors tooltip"
+                                title="Naver 지도로 검색"
+                            >
+                                <Map className="w-5 h-5" />
+                            </a>
+                        )}
+                    </div>
+                </div>
+
+                {/* Attendees */}
+                <div className="space-y-1.5">
+                    <label className="text-sm font-semibold text-gray-500 ml-1">참석자 (선택)</label>
+                    <div className="bg-gray-50 border border-gray-100 rounded-xl p-3 space-y-3">
+                        <div className="flex items-center gap-2">
+                            <Users className="w-5 h-5 text-gray-400" />
+                            <input
+                                type="email"
+                                value={newAttendee}
+                                onChange={(e) => setNewAttendee(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && newAttendee.includes('@')) {
+                                        e.preventDefault();
+                                        const current = draft.attendees || [];
+                                        if (!current.some(a => a.email === newAttendee)) {
+                                            onChange({ attendees: [...current, { email: newAttendee }] });
+                                        }
+                                        setNewAttendee("");
+                                    }
+                                }}
+                                placeholder="이메일 입력 후 Enter"
+                                className="w-full bg-transparent outline-none font-medium placeholder:text-gray-400 text-sm"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    if (newAttendee.includes('@')) {
+                                        const current = draft.attendees || [];
+                                        if (!current.some(a => a.email === newAttendee)) {
+                                            onChange({ attendees: [...current, { email: newAttendee }] });
+                                        }
+                                        setNewAttendee("");
+                                    }
+                                }}
+                                className="p-1 rounded bg-indigo-100 text-indigo-600 hover:bg-indigo-200"
+                            >
+                                <Plus className="w-4 h-4" />
+                            </button>
+                        </div>
+
+                        {(draft.attendees && draft.attendees.length > 0) && (
+                            <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-100">
+                                {draft.attendees.map((attendee, idx) => (
+                                    <div key={idx} className="flex items-center gap-1 bg-white border border-gray-200 px-2.5 py-1 rounded-full text-xs font-semibold text-gray-700 shadow-sm">
+                                        {attendee.email}
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const current = draft.attendees || [];
+                                                onChange({ attendees: current.filter(a => a.email !== attendee.email) });
+                                            }}
+                                            className="text-gray-400 hover:text-red-500 transition-colors ml-1"
+                                        >
+                                            <X className="w-3.5 h-3.5" />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Color ID */}
+                <div className="space-y-1.5">
+                    <label className="text-sm font-semibold text-gray-500 ml-1">색상 분류</label>
+                    <div className="flex bg-gray-50 border border-gray-100 rounded-xl p-2.5 overflow-x-auto hide-scrollbar items-center gap-2">
+                        <Palette className="w-5 h-5 text-gray-400 shrink-0 ml-1 mr-2" />
+                        <button
+                            type="button"
+                            onClick={() => onChange({ colorId: undefined })}
+                            className={`flex items-center justify-center w-8 h-8 rounded-full border-2 shrink-0 transition-transform ${!draft.colorId ? "border-indigo-600 scale-110 shadow-md" : "border-gray-300 hover:scale-110 bg-gray-300 border-opacity-50"
+                                }`}
+                            title="기본 색상"
                         />
+                        <div className="w-px h-6 bg-gray-200 mx-1 shrink-0" />
+                        {CALENDAR_COLORS.map(color => (
+                            <button
+                                key={color.id}
+                                type="button"
+                                onClick={() => onChange({ colorId: color.id })}
+                                className={`flex items-center justify-center w-8 h-8 rounded-full shrink-0 transition-all ${color.bg} ${draft.colorId === color.id ? "ring-2 ring-offset-2 ring-indigo-600 scale-110 shadow-md" : "hover:scale-110 border border-black/10"
+                                    }`}
+                                title={color.name}
+                            />
+                        ))}
                     </div>
                 </div>
 

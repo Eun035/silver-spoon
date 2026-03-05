@@ -10,7 +10,24 @@ interface Event {
     end: { dateTime?: string; date?: string };
     location?: string;
     htmlLink?: string;
+    colorId?: string;
+    attendees?: { email: string }[];
 }
+
+// Google Calendar Colors Match
+const CALENDAR_COLORS = [
+    { id: "1", name: "Lavender", bg: "bg-[#7986cb]", border: "border-[#7986cb]" },
+    { id: "2", name: "Sage", bg: "bg-[#33b679]", border: "border-[#33b679]" },
+    { id: "3", name: "Grape", bg: "bg-[#8e24aa]", border: "border-[#8e24aa]" },
+    { id: "4", name: "Flamingo", bg: "bg-[#e67c73]", border: "border-[#e67c73]" },
+    { id: "5", name: "Banana", bg: "bg-[#f6c026]", border: "border-[#f6c026]" },
+    { id: "6", name: "Tangerine", bg: "bg-[#f5511d]", border: "border-[#f5511d]" },
+    { id: "7", name: "Peacock", bg: "bg-[#039be5]", border: "border-[#039be5]" },
+    { id: "8", name: "Graphite", bg: "bg-[#616161]", border: "border-[#616161]" },
+    { id: "9", name: "Blueberry", bg: "bg-[#3f51b5]", border: "border-[#3f51b5]" },
+    { id: "10", name: "Basil", bg: "bg-[#0b8043]", border: "border-[#0b8043]" },
+    { id: "11", name: "Tomato", bg: "bg-[#d50000]", border: "border-[#d50000]" },
+];
 
 interface EventListProps {
     events: Event[];
@@ -24,6 +41,7 @@ const EventList: React.FC<EventListProps> = ({ events, onChanged }) => {
         startISO: string;
         endISO: string;
         location: string;
+        colorId?: string;
     } | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
 
@@ -57,6 +75,7 @@ const EventList: React.FC<EventListProps> = ({ events, onChanged }) => {
                         startISO: editData.startISO,
                         endISO: editData.endISO,
                         location: editData.location,
+                        colorId: editData.colorId,
                     }
                 }),
             });
@@ -78,6 +97,7 @@ const EventList: React.FC<EventListProps> = ({ events, onChanged }) => {
             startISO: event.start.dateTime || new Date(event.start.date!).toISOString(),
             endISO: event.end.dateTime || new Date(event.end.date!).toISOString(),
             location: event.location || "",
+            colorId: event.colorId,
         });
     };
 
@@ -197,15 +217,42 @@ const EventList: React.FC<EventListProps> = ({ events, onChanged }) => {
                                             className="w-full bg-white border border-gray-100 rounded-xl px-3 py-2 text-sm font-medium outline-none focus:border-indigo-400"
                                         />
                                     </div>
+                                    {/* Color ID */}
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-bold text-gray-400 ml-1">색상 변경</label>
+                                        <div className="flex bg-white border border-gray-100 rounded-xl p-2 overflow-x-auto hide-scrollbar items-center gap-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => setEditData({ ...editData, colorId: undefined })}
+                                                className={`w-6 h-6 rounded-full border-2 shrink-0 transition-all ${!editData.colorId ? "border-indigo-600 scale-110 shadow" : "border-gray-300 bg-gray-200"
+                                                    }`}
+                                            />
+                                            {CALENDAR_COLORS.map(color => (
+                                                <button
+                                                    key={color.id}
+                                                    type="button"
+                                                    onClick={() => setEditData({ ...editData, colorId: color.id })}
+                                                    className={`w-6 h-6 rounded-full shrink-0 transition-all ${color.bg} ${editData.colorId === color.id ? "ring-2 ring-offset-1 ring-indigo-600 scale-110 shadow" : "hover:scale-105"
+                                                        }`}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
                             ) : (
-                                <h3 className="font-bold text-gray-800 text-lg leading-tight group-hover:text-indigo-600 transition-colors">
-                                    {event.summary}
-                                </h3>
+                                <div className="flex items-center gap-3">
+                                    <div className={`w-3 h-3 rounded-full shrink-0 shadow-inner ${event.colorId
+                                            ? CALENDAR_COLORS.find(c => c.id === event.colorId)?.bg
+                                            : "bg-indigo-400"
+                                        }`} />
+                                    <h3 className="font-bold text-gray-800 text-lg leading-tight group-hover:text-indigo-600 transition-colors">
+                                        {event.summary}
+                                    </h3>
+                                </div>
                             )}
 
                             {editingId !== event.id && (
-                                <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
+                                <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm pl-6">
                                     <div className="flex items-center gap-2 text-gray-500 font-medium">
                                         <div className="p-1 bg-[#F5F7FF] rounded-lg">
                                             <Clock className="w-4 h-4 text-indigo-500" />
@@ -214,10 +261,22 @@ const EventList: React.FC<EventListProps> = ({ events, onChanged }) => {
                                     </div>
                                     {event.location && (
                                         <div className="flex items-center gap-2 text-gray-500 font-medium">
-                                            <div className="p-1 bg-[#F5F7FF] rounded-lg">
-                                                <MapPin className="w-4 h-4 text-indigo-500" />
+                                            <div className="p-1 bg-green-50 rounded-lg">
+                                                <MapPin className="w-4 h-4 text-green-600" />
                                             </div>
                                             <span className="truncate max-w-[200px]">{event.location}</span>
+                                        </div>
+                                    )}
+                                    {event.attendees && event.attendees.length > 0 && (
+                                        <div className="flex items-center gap-2 text-gray-500 font-medium">
+                                            <div className="p-1 bg-amber-50 rounded-lg">
+                                                <span className="text-xs font-bold text-amber-600 px-1">
+                                                    +{event.attendees.length}명
+                                                </span>
+                                            </div>
+                                            <span className="truncate max-w-[150px] text-xs">
+                                                {event.attendees[0].email} {event.attendees.length > 1 ? `외 ${event.attendees.length - 1}명` : ''}
+                                            </span>
                                         </div>
                                     )}
                                 </div>
