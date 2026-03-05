@@ -37,29 +37,70 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript }) => {
             recognition.interimResults = true;
 
             recognition.onresult = (event: any) => {
-                let finalPart = "";
+                let validFinals: string[] = [];
                 let interimPart = "";
 
-                for (let i = event.resultIndex; i < event.results.length; ++i) {
-                    const text = event.results[i][0].transcript;
+                // Gather all results
+                for (let i = 0; i < event.results.length; ++i) {
+                    const text = event.results[i][0].transcript.trim();
+                    if (!text) continue;
+
                     if (event.results[i].isFinal) {
-                        finalPart += text;
+                        validFinals.push(text);
                     } else {
-                        interimPart += text;
+                        interimPart += text + " ";
                     }
                 }
 
-                if (finalPart) {
-                    const cleanText = finalPart.replace(/[.,?!]/g, "").trim();
-                    const newFullTranscript = (transcriptRef.current + " " + cleanText).trim();
+                // Deduplicate validFinals for Android Chrome continuous bug
+                // where results[i] contains results[i-1] as a prefix
+                let finalStr = "";
+                for (let i = 0; i < validFinals.length; i++) {
+                    const curr = validFinals[i];
+                    const next = validFinals[i + 1];
 
-                    transcriptRef.current = newFullTranscript;
-                    setTranscript(newFullTranscript);
-                    onTranscriptRef.current(newFullTranscript);
-                    setInterimTranscript("");
-                } else {
-                    setInterimTranscript(interimPart);
+                    if (next) {
+                        const normCurr = curr.replace(/\s+/g, "");
+                        const normNext = next.replace(/\s+/g, "");
+                        // If the next chunk completely starts with this chunk, ignore this one
+                        if (normNext.startsWith(normCurr)) {
+                            continue;
+                        }
+                    }
+                    finalStr += (finalStr ? " " : "") + curr;
                 }
+
+                // Clean up interimPart if it contains the final string
+                let displayInterim = interimPart.trim();
+                if (finalStr && displayInterim) {
+                    const normFinal = finalStr.replace(/\s+/g, "");
+                    const normInterim = displayInterim.replace(/\s+/g, "");
+                    if (normInterim.startsWith(normFinal)) {
+                        const finalWords = finalStr.split(/\s+/);
+                        const interimWords = displayInterim.split(/\s+/);
+                        let matchIdx = 0;
+                        while (matchIdx < finalWords.length && matchIdx < interimWords.length) {
+                            if (finalWords[matchIdx] === interimWords[matchIdx]) {
+                                matchIdx++;
+                            } else {
+                                break;
+                            }
+                        }
+                        if (matchIdx > 0) {
+                            displayInterim = interimWords.slice(matchIdx).join(" ");
+                        }
+                    }
+                }
+
+                setTranscript(finalStr);
+
+                // Only trigger the callback if something meaningful was finalized
+                if (finalStr !== transcriptRef.current) {
+                    transcriptRef.current = finalStr;
+                    onTranscriptRef.current(finalStr);
+                }
+
+                setInterimTranscript(displayInterim);
             };
 
             recognition.onerror = (event: any) => {
