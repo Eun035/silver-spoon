@@ -34,6 +34,7 @@ export async function GET(req: NextRequest) {
             end: event.end,
             location: event.location,
             htmlLink: event.htmlLink,
+            colorId: event.colorId,
         })) || [];
 
         return NextResponse.json(events);
