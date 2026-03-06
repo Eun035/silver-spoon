@@ -162,7 +162,7 @@ export default function Home() {
                     <div className="flex items-center justify-between px-1 md:px-2 gap-1 sm:gap-2">
                         <div className="flex items-center gap-1.5 sm:gap-2 overflow-hidden">
                             <Sparkles className="w-4 h-4 sm:w-6 sm:h-6 text-yellow-500 shrink-0" />
-                            <h2 className="text-base sm:text-2xl font-black text-gray-900 whitespace-nowrap tracking-tight">
+                            <h2 className="text-xl sm:text-2xl font-black text-gray-900 whitespace-nowrap tracking-tight pt-0.5">
                                 일정 추가하기
                             </h2>
                             <p className="text-xs sm:text-sm text-gray-400 font-medium hidden md:block md:ml-2 mb-[-2px] whitespace-nowrap shrink-0">
