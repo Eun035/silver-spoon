@@ -159,31 +159,31 @@ export default function Home() {
             <div className="max-w-3xl mx-auto px-6 pt-8 space-y-10">
                 {/* Input Section */}
                 <section className="space-y-6">
-                    <div className="flex items-center justify-between px-1 md:px-2 gap-2">
+                    <div className="flex items-center justify-between px-1 md:px-2 gap-1 sm:gap-2">
                         <div className="flex items-center gap-1.5 sm:gap-2 overflow-hidden">
-                            <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-500 shrink-0" />
-                            <h2 className="text-lg sm:text-2xl font-black text-gray-900 whitespace-nowrap tracking-tight">
+                            <Sparkles className="w-4 h-4 sm:w-6 sm:h-6 text-yellow-500 shrink-0" />
+                            <h2 className="text-base sm:text-2xl font-black text-gray-900 whitespace-nowrap tracking-tight">
                                 일정 추가하기
                             </h2>
                             <p className="text-xs sm:text-sm text-gray-400 font-medium hidden md:block md:ml-2 mb-[-2px] whitespace-nowrap shrink-0">
                                 말하거나 적어주세요
                             </p>
                         </div>
-                        <div className="flex bg-gray-100 p-1.5 rounded-2xl shrink-0 items-center">
+                        <div className="flex bg-gray-100 p-1 sm:p-1.5 rounded-xl sm:rounded-2xl shrink-0 items-center">
                             <button
                                 onClick={() => setInputMode("voice")}
-                                className={`px-4 sm:px-6 py-2 sm:py-3 rounded-xl text-base sm:text-lg font-black transition-all flex items-center justify-center gap-1.5 sm:gap-2 h-full ${inputMode === "voice" ? "bg-white text-indigo-600 shadow-md transform scale-[1.02]" : "text-gray-500 hover:text-gray-700 hover:bg-gray-200"
+                                className={`px-2.5 sm:px-6 py-1.5 sm:py-3 rounded-lg sm:rounded-xl text-sm sm:text-lg font-black transition-all flex items-center justify-center gap-1 sm:gap-2 h-full ${inputMode === "voice" ? "bg-white text-indigo-600 shadow-md transform scale-[1.02]" : "text-gray-500 hover:text-gray-700 hover:bg-gray-200"
                                     }`}
                             >
-                                <Mic className="w-5 h-5 sm:w-6 sm:h-6" />
+                                <Mic className="w-4 h-4 sm:w-6 sm:h-6" />
                                 음성
                             </button>
                             <button
                                 onClick={() => setInputMode("text")}
-                                className={`px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-sm sm:text-base font-bold transition-all flex items-center justify-center gap-1 sm:gap-1.5 h-full ${inputMode === "text" ? "bg-white text-indigo-600 shadow-md transform scale-[1.02]" : "text-gray-500 hover:text-gray-700 hover:bg-gray-200"
+                                className={`px-2.5 sm:px-5 py-1.5 sm:py-2.5 rounded-lg sm:rounded-xl text-xs sm:text-base font-bold transition-all flex items-center justify-center gap-1 sm:gap-1.5 h-full ${inputMode === "text" ? "bg-white text-indigo-600 shadow-md transform scale-[1.02]" : "text-gray-500 hover:text-gray-700 hover:bg-gray-200"
                                     }`}
                             >
-                                <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5" />
+                                <MessageSquare className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
                                 텍스트
                             </button>
                         </div>
