@@ -169,21 +169,21 @@ export default function Home() {
                                 말하거나 적어주세요
                             </p>
                         </div>
-                        <div className="flex bg-gray-100 p-1 rounded-xl shrink-0">
+                        <div className="flex bg-gray-100 p-1.5 rounded-xl shrink-0">
                             <button
                                 onClick={() => setInputMode("text")}
-                                className={`px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1 sm:gap-1.5 ${inputMode === "text" ? "bg-white text-indigo-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
+                                className={`px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg text-sm sm:text-base font-bold transition-all flex items-center justify-center gap-1.5 sm:gap-2 ${inputMode === "text" ? "bg-white text-indigo-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
                                     }`}
                             >
-                                <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5" />
                                 텍스트
                             </button>
                             <button
                                 onClick={() => setInputMode("voice")}
-                                className={`px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1 sm:gap-1.5 ${inputMode === "voice" ? "bg-white text-indigo-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
+                                className={`px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg text-sm sm:text-base font-bold transition-all flex items-center justify-center gap-1.5 sm:gap-2 ${inputMode === "voice" ? "bg-white text-indigo-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
                                     }`}
                             >
-                                <Mic className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                <Mic className="w-4 h-4 sm:w-5 sm:h-5" />
                                 음성
                             </button>
                         </div>
