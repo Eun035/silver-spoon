@@ -169,10 +169,10 @@ export default function Home() {
                                 말하거나 적어주세요
                             </p>
                         </div>
-                        <div className="flex bg-gray-100 p-2 rounded-2xl shrink-0">
+                        <div className="flex bg-gray-100 p-1.5 rounded-2xl shrink-0 items-center">
                             <button
                                 onClick={() => setInputMode("voice")}
-                                className={`px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-base sm:text-lg font-black transition-all flex items-center justify-center gap-1.5 sm:gap-2 ${inputMode === "voice" ? "bg-white text-indigo-600 shadow-md transform scale-[1.02]" : "text-gray-500 hover:text-gray-700 hover:bg-gray-200"
+                                className={`px-4 sm:px-6 py-2 sm:py-3 rounded-xl text-base sm:text-lg font-black transition-all flex items-center justify-center gap-1.5 sm:gap-2 h-full ${inputMode === "voice" ? "bg-white text-indigo-600 shadow-md transform scale-[1.02]" : "text-gray-500 hover:text-gray-700 hover:bg-gray-200"
                                     }`}
                             >
                                 <Mic className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -180,10 +180,10 @@ export default function Home() {
                             </button>
                             <button
                                 onClick={() => setInputMode("text")}
-                                className={`px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-base sm:text-lg font-black transition-all flex items-center justify-center gap-1.5 sm:gap-2 ${inputMode === "text" ? "bg-white text-indigo-600 shadow-md transform scale-[1.02]" : "text-gray-500 hover:text-gray-700 hover:bg-gray-200"
+                                className={`px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-sm sm:text-base font-bold transition-all flex items-center justify-center gap-1 sm:gap-1.5 h-full ${inputMode === "text" ? "bg-white text-indigo-600 shadow-md transform scale-[1.02]" : "text-gray-500 hover:text-gray-700 hover:bg-gray-200"
                                     }`}
                             >
-                                <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6" />
+                                <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5" />
                                 텍스트
                             </button>
                         </div>

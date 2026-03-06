@@ -249,7 +249,7 @@ const EventList: React.FC<EventListProps> = ({ events, onChanged }) => {
                                     </div>
                                     {/* Reminders */}
                                     <div className="space-y-1">
-                                        <label className="text-[10px] font-bold text-gray-400 ml-1">알림</label>
+                                        <label className="text-[10px] font-bold text-gray-400 ml-1">알림 <span className="font-medium tracking-tighter">(다중선택가능)</span></label>
                                         <div className="flex flex-wrap gap-2">
                                             <button
                                                 type="button"

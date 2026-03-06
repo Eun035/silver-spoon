@@ -252,7 +252,7 @@ const EventPreviewCard: React.FC<EventPreviewCardProps> = ({ draft, onChange }) 
 
                 {/* Quick Reminders */}
                 <div className="space-y-1.5">
-                    <label className="text-sm font-semibold text-gray-500 ml-1">알림</label>
+                    <label className="text-sm font-semibold text-gray-500 ml-1">알림 <span className="text-xs font-medium text-gray-400 tracking-tighter">(다중선택가능)</span></label>
                     <div className="flex flex-wrap gap-2 ml-1">
                         <button
                             type="button"
