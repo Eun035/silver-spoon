@@ -11,8 +11,10 @@ import {
     Mic,
     AlertCircle,
     Save,
-    Sparkles
+    Sparkles,
+    Settings
 } from "lucide-react";
+import Link from "next/link";
 import EventList from "@/components/EventList";
 import VoiceInput from "@/components/VoiceInput";
 import TextInput from "@/components/TextInput";
@@ -146,12 +148,19 @@ export default function Home() {
                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Signed in as</span>
                         <span className="text-xs font-bold text-gray-800">{session?.user?.name}</span>
                     </div>
+                    <Link
+                        href="/settings"
+                        className="p-2 sm:p-2.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-2xl transition-all active:scale-90"
+                        title="Settings"
+                    >
+                        <Settings className="w-5 h-5 sm:w-6 sm:h-6" />
+                    </Link>
                     <button
                         onClick={() => signOut()}
-                        className="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all active:scale-90"
+                        className="p-2 sm:p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all active:scale-90"
                         title="Sign Out"
                     >
-                        <LogOut className="w-6 h-6" />
+                        <LogOut className="w-5 h-5 sm:w-6 sm:h-6" />
                     </button>
                 </div>
             </nav>
