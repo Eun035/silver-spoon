@@ -242,12 +242,27 @@ export function parseToDraft(
     const startISO = date.toISOString();
     const endISO = new Date(date.getTime() + durationMinutes * 60 * 1000).toISOString();
 
+    // 5. 알림 (Reminders) 추출
+    let reminders = [30]; // 기본 30분 전
+    const alarmMatch = input.match(/(정시|정각|시간에 맞춰서|시간 맞춰서)\s*(알람|알림|알려)/);
+    if (alarmMatch) {
+        reminders = [0]; // 정시 알림
+        title = title.replace(alarmMatch[0], "");
+    } else {
+        const timeAlarmMatch = input.match(/(\d+)(시간|분)\s*(전)?\s*(알람|알림|알려)/);
+        if (timeAlarmMatch) {
+            const val = parseInt(timeAlarmMatch[1]);
+            const isHour = timeAlarmMatch[2] === "시간";
+            reminders = [isHour ? val * 60 : val];
+            title = title.replace(timeAlarmMatch[0], "");
+        }
+    }
+
     // 제목 정제 (추출 과정에서 이미 title에서 매칭된 부분들은 제거된 상태임)
     // 남아있는 노이즈만 제거하되, 숫자는 가급적 보존 (예: "1번 출구" 등)
-    const noise = /이번주|다음주|담주|내주|차주|금주|요일|오전|오후|아침|점심|저녁|밤|새벽|뒤|후|이후|동안|정도|장소|@/g;
+    const noise = /이번주|다음주|담주|내주|차주|금주|요일|오전|오후|아침|점심|저녁|밤|새벽|뒤|후|이후|동안|정도|장소|@|알람|알림|맞춰서|알려줘/g;
     title = title.replace(noise, "").replace(/\s+/g, " ").trim();
     if (!title) title = "새 일정";
 
-    // 기본 알림 30분 전으로 설정 (배열 형태)
-    return { draft: { title, startISO, endISO, location, reminders: [30], attendees, colorId } };
+    return { draft: { title, startISO, endISO, location, reminders, attendees, colorId } };
 }

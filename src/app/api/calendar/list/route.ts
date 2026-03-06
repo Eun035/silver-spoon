@@ -27,15 +27,26 @@ export async function GET(req: NextRequest) {
             orderBy: "startTime",
         });
 
-        const events = response.data.items?.map((event) => ({
-            id: event.id,
-            summary: event.summary,
-            start: event.start,
-            end: event.end,
-            location: event.location,
-            htmlLink: event.htmlLink,
-            colorId: event.colorId,
-        })) || [];
+        const events = response.data.items?.map((event) => {
+            let reminders: number[] = [];
+            if (event.reminders?.useDefault) {
+                // 구글 캘린더 기본 알림이 보통 30분 전
+                reminders = [30];
+            } else if (event.reminders?.overrides) {
+                reminders = event.reminders.overrides.map(o => o.minutes || 0);
+            }
+
+            return {
+                id: event.id,
+                summary: event.summary,
+                start: event.start,
+                end: event.end,
+                location: event.location,
+                htmlLink: event.htmlLink,
+                colorId: event.colorId,
+                reminders: reminders,
+            };
+        }) || [];
 
         return NextResponse.json(events);
     } catch (error: any) {

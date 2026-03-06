@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Calendar, Clock, MapPin, Trash2, Edit2, Check, X } from "lucide-react";
+import { Calendar, Clock, MapPin, Trash2, Edit2, Check, X, Bell } from "lucide-react";
 
 interface Event {
     id: string;
@@ -12,6 +12,7 @@ interface Event {
     htmlLink?: string;
     colorId?: string;
     attendees?: { email: string }[];
+    reminders?: number[];
 }
 
 // Google Calendar Colors Match
@@ -42,6 +43,7 @@ const EventList: React.FC<EventListProps> = ({ events, onChanged }) => {
         endISO: string;
         location: string;
         colorId?: string;
+        reminders?: number[];
     } | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
 
@@ -76,6 +78,7 @@ const EventList: React.FC<EventListProps> = ({ events, onChanged }) => {
                         endISO: editData.endISO,
                         location: editData.location,
                         colorId: editData.colorId,
+                        reminders: editData.reminders,
                     }
                 }),
             });
@@ -98,6 +101,7 @@ const EventList: React.FC<EventListProps> = ({ events, onChanged }) => {
             endISO: event.end.dateTime || new Date(event.end.date!).toISOString(),
             location: event.location || "",
             colorId: event.colorId,
+            reminders: event.reminders,
         });
     };
 
@@ -243,6 +247,47 @@ const EventList: React.FC<EventListProps> = ({ events, onChanged }) => {
                                             ))}
                                         </div>
                                     </div>
+                                    {/* Reminders */}
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] font-bold text-gray-400 ml-1">알림</label>
+                                        <div className="flex flex-wrap gap-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => setEditData({ ...editData, reminders: [] })}
+                                                className={`px-2.5 py-1.5 rounded-lg text-[10px] font-bold transition-colors flex items-center gap-1 ${(!editData.reminders || editData.reminders.length === 0) ? "bg-red-500 text-white shadow-sm" : "bg-white border border-gray-100 text-gray-600 hover:bg-gray-50"}`}
+                                            >
+                                                <Bell className="w-3 h-3" /> 없음
+                                            </button>
+                                            {[
+                                                { label: "정시", value: 0 },
+                                                { label: "10분 전", value: 10 },
+                                                { label: "30분 전", value: 30 },
+                                                { label: "1시간 전", value: 60 },
+                                                { label: "1일 전", value: 1440 },
+                                            ].map((option) => {
+                                                const isSelected = editData.reminders?.includes(option.value);
+                                                return (
+                                                    <button
+                                                        key={option.label}
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const currentReminders = editData.reminders || [];
+                                                            let newReminders;
+                                                            if (isSelected) {
+                                                                newReminders = currentReminders.filter((r) => r !== option.value);
+                                                            } else {
+                                                                newReminders = [...currentReminders, option.value].sort((a, b) => a - b);
+                                                            }
+                                                            setEditData({ ...editData, reminders: newReminders });
+                                                        }}
+                                                        className={`px-2.5 py-1.5 rounded-lg text-[10px] font-bold transition-colors flex items-center gap-1 ${isSelected ? "bg-red-500 text-white shadow-sm" : "bg-white border border-gray-100 text-gray-600 hover:bg-gray-50"}`}
+                                                    >
+                                                        {option.label}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
                                 </div>
                             ) : (
                                 <div className="flex items-center gap-3">
@@ -281,6 +326,16 @@ const EventList: React.FC<EventListProps> = ({ events, onChanged }) => {
                                             </div>
                                             <span className="truncate max-w-[150px] text-xs">
                                                 {event.attendees[0].email} {event.attendees.length > 1 ? `외 ${event.attendees.length - 1}명` : ''}
+                                            </span>
+                                        </div>
+                                    )}
+                                    {event.reminders && event.reminders.length > 0 && (
+                                        <div className="flex items-center gap-2 text-gray-500 font-medium">
+                                            <div className="p-1 bg-red-50 rounded-lg">
+                                                <Bell className="w-4 h-4 text-red-600" />
+                                            </div>
+                                            <span className="truncate max-w-[200px] text-xs">
+                                                {event.reminders.map(mins => mins === 0 ? "정시" : mins === 1440 ? "1일 전" : mins >= 60 ? `${mins / 60}시간 전` : `${mins}분 전`).join(', ')} 알림
                                             </span>
                                         </div>
                                     )}
