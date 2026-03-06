@@ -12,7 +12,8 @@ import {
     AlertCircle,
     Save,
     Sparkles,
-    Settings
+    Settings,
+    Share2
 } from "lucide-react";
 import Link from "next/link";
 import EventList from "@/components/EventList";
@@ -33,6 +34,25 @@ export default function Home() {
     const [draft, setDraft] = useState<EventDraft | null>(null);
     const [parseError, setParseError] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState(false);
+
+    const handleShare = async () => {
+        const shareData = {
+            title: "CAL.AI - 인공지능 캘린더",
+            text: "목소리로 일정을 관리하는 가장 스마트한 방법, AI Calendar Assistant를 사용해 보세요!",
+            url: window.location.origin,
+        };
+
+        try {
+            if (navigator.share) {
+                await navigator.share(shareData);
+            } else {
+                await navigator.clipboard.writeText(shareData.url);
+                alert("앱 링크가 클립보드에 복사되었습니다! 친구들에게 공유해 보세요.");
+            }
+        } catch (err) {
+            console.error("공유하기 실패:", err);
+        }
+    };
 
     const fetchEvents = useCallback(async () => {
         if (status !== "authenticated") return;
@@ -148,6 +168,13 @@ export default function Home() {
                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Signed in as</span>
                         <span className="text-xs font-bold text-gray-800">{session?.user?.name}</span>
                     </div>
+                    <button
+                        onClick={handleShare}
+                        className="p-2 sm:p-2.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-2xl transition-all active:scale-90"
+                        title="Share App"
+                    >
+                        <Share2 className="w-5 h-5 sm:w-6 sm:h-6" />
+                    </button>
                     <Link
                         href="/settings"
                         className="p-2 sm:p-2.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-2xl transition-all active:scale-90"
