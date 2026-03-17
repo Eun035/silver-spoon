@@ -157,29 +157,29 @@ const EventList: React.FC<EventListProps> = ({ events, onChanged }) => {
             {events.map((event) => (
                 <div
                     key={event.id}
-                    className="group bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-indigo-100/30 hover:border-indigo-100 transition-all duration-300"
+                    className="group bg-white p-4 sm:p-6 rounded-[24px] sm:rounded-[32px] border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-indigo-100/30 hover:border-indigo-100 transition-all duration-300"
                 >
                     <div className="flex justify-between items-start gap-4">
                         <div className="flex-1 space-y-3">
                             {editingId === event.id && editData ? (
                                 <div className="space-y-4 bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100 flex flex-col gap-3">
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-xs font-bold text-indigo-600 uppercase">일정 수정</span>
+                                    <div className="flex justify-between items-center gap-2">
+                                        <span className="text-[10px] sm:text-xs font-bold text-indigo-600 uppercase">일정 수정</span>
                                         <div className="flex gap-1">
                                             <button
                                                 onClick={() => handleUpdate(event.id)}
-                                                className="p-2 text-green-600 hover:bg-green-100 rounded-xl transition-colors"
+                                                className="p-1.5 sm:p-2 text-green-600 hover:bg-green-100 rounded-lg sm:rounded-xl transition-colors"
                                             >
-                                                <Check className="w-5 h-5" />
+                                                <Check className="w-4 h-4 sm:w-5 sm:h-5" />
                                             </button>
                                             <button
                                                 onClick={() => {
                                                     setEditingId(null);
                                                     setEditData(null);
                                                 }}
-                                                className="p-2 text-red-500 hover:bg-red-100 rounded-xl transition-colors"
+                                                className="p-1.5 sm:p-2 text-red-500 hover:bg-red-100 rounded-lg sm:rounded-xl transition-colors"
                                             >
-                                                <X className="w-5 h-5" />
+                                                <X className="w-4 h-4 sm:w-5 sm:h-5" />
                                             </button>
                                         </div>
                                     </div>
@@ -190,7 +190,7 @@ const EventList: React.FC<EventListProps> = ({ events, onChanged }) => {
                                         <input
                                             value={editData.title}
                                             onChange={(e) => handleEditChange("title", e.target.value)}
-                                            className="w-full bg-white border border-gray-100 rounded-xl px-3 py-2 outline-none font-semibold text-gray-800 focus:border-indigo-400"
+                                            className="w-full bg-white border border-gray-100 rounded-xl px-2.5 sm:px-3 py-2 outline-none font-semibold text-gray-800 focus:border-indigo-400 text-sm sm:text-base"
                                         />
                                     </div>
 
@@ -202,7 +202,7 @@ const EventList: React.FC<EventListProps> = ({ events, onChanged }) => {
                                                 type="datetime-local"
                                                 value={formatISOForInput(editData.startISO)}
                                                 onChange={(e) => handleEditChange("startISO", e.target.value)}
-                                                className="w-full bg-white border border-gray-100 rounded-xl px-3 py-2 text-sm font-medium outline-none focus:border-indigo-400"
+                                                className="w-full bg-white border border-gray-100 rounded-xl px-2.5 sm:px-3 py-2 text-xs sm:text-sm font-medium outline-none focus:border-indigo-400"
                                             />
                                         </div>
                                         <div className="space-y-1">
@@ -211,7 +211,7 @@ const EventList: React.FC<EventListProps> = ({ events, onChanged }) => {
                                                 type="datetime-local"
                                                 value={formatISOForInput(editData.endISO)}
                                                 onChange={(e) => handleEditChange("endISO", e.target.value)}
-                                                className="w-full bg-white border border-gray-100 rounded-xl px-3 py-2 text-sm font-medium outline-none focus:border-indigo-400"
+                                                className="w-full bg-white border border-gray-100 rounded-xl px-2.5 sm:px-3 py-2 text-xs sm:text-sm font-medium outline-none focus:border-indigo-400"
                                             />
                                         </div>
                                     </div>
@@ -223,7 +223,7 @@ const EventList: React.FC<EventListProps> = ({ events, onChanged }) => {
                                             value={editData.location}
                                             onChange={(e) => handleEditChange("location", e.target.value)}
                                             placeholder="장소 추가"
-                                            className="w-full bg-white border border-gray-100 rounded-xl px-3 py-2 text-sm font-medium outline-none focus:border-indigo-400"
+                                            className="w-full bg-white border border-gray-100 rounded-xl px-2.5 sm:px-3 py-2 text-xs sm:text-sm font-medium outline-none focus:border-indigo-400"
                                         />
                                     </div>
                                     {/* Color ID */}
@@ -290,51 +290,51 @@ const EventList: React.FC<EventListProps> = ({ events, onChanged }) => {
                                     </div>
                                 </div>
                             ) : (
-                                <div className="flex items-center gap-3">
-                                    <div className={`w-3 h-3 rounded-full shrink-0 shadow-inner ${event.colorId
+                                <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                                    <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full shrink-0 shadow-inner ${event.colorId
                                         ? CALENDAR_COLORS.find(c => c.id === event.colorId)?.bg
                                         : "bg-indigo-400"
                                         }`} />
-                                    <h3 className="font-bold text-gray-800 text-lg leading-tight group-hover:text-indigo-600 transition-colors">
+                                    <h3 className="font-bold text-gray-800 text-base sm:text-lg leading-tight group-hover:text-indigo-600 transition-colors truncate">
                                         {event.summary}
                                     </h3>
                                 </div>
                             )}
 
                             {editingId !== event.id && (
-                                <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm pl-6">
-                                    <div className="flex items-center gap-2 text-gray-500 font-medium">
-                                        <div className="p-1 bg-[#F5F7FF] rounded-lg">
-                                            <Clock className="w-4 h-4 text-indigo-500" />
+                                <div className="flex flex-col sm:flex-row sm:flex-wrap gap-x-4 sm:gap-x-5 gap-y-2 text-xs sm:text-sm pl-4 sm:pl-6 overflow-hidden">
+                                    <div className="flex items-center gap-1.5 sm:gap-2 text-gray-500 font-medium shrink-0 min-w-0">
+                                        <div className="p-0.5 sm:p-1 bg-[#F5F7FF] rounded-md sm:rounded-lg shrink-0">
+                                            <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-500" />
                                         </div>
-                                        <span>{formatDate(event)}</span>
+                                        <span className="text-[11px] sm:text-sm truncate">{formatDate(event)}</span>
                                     </div>
                                     {event.location && (
-                                        <div className="flex items-center gap-2 text-gray-500 font-medium">
-                                            <div className="p-1 bg-green-50 rounded-lg">
-                                                <MapPin className="w-4 h-4 text-green-600" />
+                                        <div className="flex items-center gap-1.5 sm:gap-2 text-gray-500 font-medium min-w-0">
+                                            <div className="p-0.5 sm:p-1 bg-green-50 rounded-md sm:rounded-lg shrink-0">
+                                                <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-600" />
                                             </div>
-                                            <span className="truncate max-w-[200px]">{event.location}</span>
+                                            <span className="truncate text-[11px] sm:text-sm">{event.location}</span>
                                         </div>
                                     )}
                                     {event.attendees && event.attendees.length > 0 && (
-                                        <div className="flex items-center gap-2 text-gray-500 font-medium">
-                                            <div className="p-1 bg-amber-50 rounded-lg">
-                                                <span className="text-xs font-bold text-amber-600 px-1">
+                                        <div className="flex items-center gap-1.5 sm:gap-2 text-gray-500 font-medium min-w-0">
+                                            <div className="p-0.5 sm:p-1 bg-amber-50 rounded-md sm:rounded-lg shrink-0">
+                                                <span className="text-[10px] sm:text-xs font-bold text-amber-600 px-0.5 sm:px-1">
                                                     +{event.attendees.length}명
                                                 </span>
                                             </div>
-                                            <span className="truncate max-w-[150px] text-xs">
-                                                {event.attendees[0].email} {event.attendees.length > 1 ? `외 ${event.attendees.length - 1}명` : ''}
+                                            <span className="truncate text-[10px] sm:text-xs">
+                                                {event.attendees[0].email}
                                             </span>
                                         </div>
                                     )}
                                     {event.reminders && event.reminders.length > 0 && (
-                                        <div className="flex items-center gap-2 text-gray-500 font-medium">
-                                            <div className="p-1 bg-red-50 rounded-lg">
-                                                <Bell className="w-4 h-4 text-red-600" />
+                                        <div className="flex items-center gap-1.5 sm:gap-2 text-gray-500 font-medium min-w-0">
+                                            <div className="p-0.5 sm:p-1 bg-red-50 rounded-md sm:rounded-lg shrink-0">
+                                                <Bell className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-600" />
                                             </div>
-                                            <span className="truncate max-w-[200px] text-xs">
+                                            <span className="text-[10px] sm:text-xs leading-normal break-words whitespace-normal">
                                                 {event.reminders.map(mins => mins === 0 ? "정시" : mins === 1440 ? "1일 전" : mins >= 60 ? `${mins / 60}시간 전` : `${mins}분 전`).join(', ')} 알림
                                             </span>
                                         </div>
@@ -344,22 +344,22 @@ const EventList: React.FC<EventListProps> = ({ events, onChanged }) => {
                         </div>
 
                         {editingId !== event.id && (
-                            <div className="flex gap-1">
+                            <div className="flex gap-0.5 sm:gap-1 shrink-0">
                                 <button
                                     disabled={isProcessing}
                                     onClick={() => startEdit(event)}
-                                    className="p-2.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-2xl transition-all active:scale-90"
+                                    className="p-1.5 sm:p-2.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl sm:rounded-2xl transition-all active:scale-90"
                                     title="수정"
                                 >
-                                    <Edit2 className="w-5 h-5" />
+                                    <Edit2 className="w-4 h-4 sm:w-5 sm:h-5" />
                                 </button>
                                 <button
                                     disabled={isProcessing}
                                     onClick={() => handleDelete(event.id)}
-                                    className="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all active:scale-90"
+                                    className="p-1.5 sm:p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl sm:rounded-2xl transition-all active:scale-90"
                                     title="삭제"
                                 >
-                                    <Trash2 className="w-5 h-5" />
+                                    <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
                                 </button>
                             </div>
                         )}

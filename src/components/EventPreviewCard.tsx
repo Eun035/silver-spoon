@@ -69,9 +69,9 @@ const EventPreviewCard: React.FC<EventPreviewCardProps> = ({ draft, onChange }) 
     };
 
     return (
-        <div className="bg-white rounded-3xl border border-indigo-100 p-6 shadow-xl shadow-indigo-100/50 flex flex-col gap-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="flex items-center gap-2 text-indigo-600 font-bold text-lg mb-1">
-                <CheckCircle2 className="w-6 h-6" />
+        <div className="bg-white rounded-2xl sm:rounded-3xl border border-indigo-100 p-4 sm:p-6 shadow-xl shadow-indigo-100/50 flex flex-col gap-4 sm:gap-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="flex items-center gap-2 text-indigo-600 font-bold text-base sm:text-lg mb-0.5 sm:mb-1">
+                <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6" />
                 <span>일정을 확인해 주세요</span>
             </div>
 
@@ -95,12 +95,12 @@ const EventPreviewCard: React.FC<EventPreviewCardProps> = ({ draft, onChange }) 
                 <div className="space-y-1.5">
                     <label className="text-sm font-semibold text-gray-500 ml-1">제목</label>
                     <div className="relative">
-                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                         <input
                             type="text"
                             value={draft.title}
                             onChange={(e) => onChange({ title: e.target.value })}
-                            className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:bg-white focus:border-indigo-400 outline-none transition-all font-medium"
+                            className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 bg-gray-50 border border-gray-100 rounded-xl focus:bg-white focus:border-indigo-400 outline-none transition-all font-medium text-sm sm:text-base"
                         />
                     </div>
                 </div>
@@ -110,12 +110,12 @@ const EventPreviewCard: React.FC<EventPreviewCardProps> = ({ draft, onChange }) 
                     <label className="text-sm font-semibold text-gray-500 ml-1">시작 시간</label>
                     <div className="flex flex-col gap-2">
                         <div className="relative">
-                            <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                             <input
                                 type="datetime-local"
                                 value={formatISOForInput(draft.startISO)}
                                 onChange={(e) => handleDateChange("startISO", e.target.value)}
-                                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:bg-white focus:border-indigo-400 outline-none transition-all font-medium"
+                                className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 bg-gray-50 border border-gray-100 rounded-xl focus:bg-white focus:border-indigo-400 outline-none transition-all font-medium text-sm sm:text-base"
                             />
                         </div>
                         {/* Duration Presets */}
@@ -143,12 +143,12 @@ const EventPreviewCard: React.FC<EventPreviewCardProps> = ({ draft, onChange }) 
                 <div className="space-y-1.5">
                     <label className="text-sm font-semibold text-gray-500 ml-1">종료 시간</label>
                     <div className="relative">
-                        <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                         <input
                             type="datetime-local"
                             value={formatISOForInput(draft.endISO)}
                             onChange={(e) => handleDateChange("endISO", e.target.value)}
-                            className={`w-full pl-10 pr-4 py-3 bg-gray-50 border rounded-xl outline-none transition-all font-medium ${isInvalid ? "border-red-300 bg-red-50 focus:border-red-500" : "border-gray-100 focus:bg-white focus:border-indigo-400"
+                            className={`w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 bg-gray-50 border rounded-xl outline-none transition-all font-medium text-sm sm:text-base ${isInvalid ? "border-red-300 bg-red-50 focus:border-red-500" : "border-gray-100 focus:bg-white focus:border-indigo-400"
                                 }`}
                         />
                     </div>
@@ -165,13 +165,13 @@ const EventPreviewCard: React.FC<EventPreviewCardProps> = ({ draft, onChange }) 
                     <label className="text-sm font-semibold text-gray-500 ml-1">장소 (선택)</label>
                     <div className="flex gap-2">
                         <div className="relative flex-1">
-                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                             <input
                                 type="text"
                                 value={draft.location || ""}
                                 onChange={(e) => onChange({ location: e.target.value })}
                                 placeholder="장소 없음"
-                                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:bg-white focus:border-indigo-400 outline-none transition-all font-medium"
+                                className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2.5 sm:py-3 bg-gray-50 border border-gray-100 rounded-xl focus:bg-white focus:border-indigo-400 outline-none transition-all font-medium text-sm sm:text-base"
                             />
                         </div>
                         {draft.location && (
@@ -179,10 +179,10 @@ const EventPreviewCard: React.FC<EventPreviewCardProps> = ({ draft, onChange }) 
                                 href={`https://map.naver.com/v5/search/${encodeURIComponent(draft.location)}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center justify-center px-4 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 transition-colors tooltip"
+                                className="flex items-center justify-center px-3 sm:px-4 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 transition-colors tooltip"
                                 title="Naver 지도로 검색"
                             >
-                                <Map className="w-5 h-5" />
+                                <Map className="w-4 h-4 sm:w-5 sm:h-5" />
                             </a>
                         )}
                     </div>
@@ -191,9 +191,9 @@ const EventPreviewCard: React.FC<EventPreviewCardProps> = ({ draft, onChange }) 
                 {/* Attendees */}
                 <div className="space-y-1.5">
                     <label className="text-sm font-semibold text-gray-500 ml-1">참석자 (선택)</label>
-                    <div className="bg-gray-50 border border-gray-100 rounded-xl p-3 space-y-3">
+                    <div className="bg-gray-50 border border-gray-100 rounded-xl p-2.5 sm:p-3 space-y-2 sm:space-y-3">
                         <div className="flex items-center gap-2">
-                            <Users className="w-5 h-5 text-gray-400" />
+                            <Users className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                             <input
                                 type="email"
                                 value={newAttendee}
@@ -209,7 +209,7 @@ const EventPreviewCard: React.FC<EventPreviewCardProps> = ({ draft, onChange }) 
                                     }
                                 }}
                                 placeholder="이메일 입력 후 Enter"
-                                className="w-full bg-transparent outline-none font-medium placeholder:text-gray-400 text-sm"
+                                className="w-full bg-transparent outline-none font-medium placeholder:text-gray-400 text-xs sm:text-sm"
                             />
                             <button
                                 type="button"
@@ -224,24 +224,24 @@ const EventPreviewCard: React.FC<EventPreviewCardProps> = ({ draft, onChange }) 
                                 }}
                                 className="p-1 rounded bg-indigo-100 text-indigo-600 hover:bg-indigo-200"
                             >
-                                <Plus className="w-4 h-4" />
+                                <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                             </button>
                         </div>
 
                         {(draft.attendees && draft.attendees.length > 0) && (
-                            <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-100">
+                            <div className="flex flex-wrap gap-1.5 sm:gap-2 pt-2 border-t border-gray-100">
                                 {draft.attendees.map((attendee, idx) => (
-                                    <div key={idx} className="flex items-center gap-1 bg-white border border-gray-200 px-2.5 py-1 rounded-full text-xs font-semibold text-gray-700 shadow-sm">
-                                        {attendee.email}
+                                    <div key={idx} className="flex items-center gap-1 bg-white border border-gray-200 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-semibold text-gray-700 shadow-sm">
+                                        <span className="truncate max-w-[100px] sm:max-w-none">{attendee.email}</span>
                                         <button
                                             type="button"
                                             onClick={() => {
                                                 const current = draft.attendees || [];
                                                 onChange({ attendees: current.filter(a => a.email !== attendee.email) });
                                             }}
-                                            className="text-gray-400 hover:text-red-500 transition-colors ml-1"
+                                            className="text-gray-400 hover:text-red-500 transition-colors ml-0.5 sm:ml-1"
                                         >
-                                            <X className="w-3.5 h-3.5" />
+                                            <X className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                                         </button>
                                     </div>
                                 ))}

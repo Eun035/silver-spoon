@@ -6,7 +6,23 @@
   --background-end-rgb: 255, 255, 255;
 }
 
+html,
 body {
   color: rgb(var(--foreground-rgb));
   background: white;
+  overflow-x: hidden !important;
+  max-width: 100vw;
+  width: 100%;
+  position: relative;
+}
+
+@media (max-width: 640px) {
+  #mobile-header-container {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 1rem !important;
+  }
+  #mobile-header-container > div {
+    width: 100% !important;
+  }
 }

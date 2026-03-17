@@ -175,7 +175,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript }) => {
         <div className="flex flex-col items-center gap-4 w-full">
             <button
                 onClick={toggleListening}
-                className={`w-full min-h-[56px] rounded-2xl flex items-center justify-center gap-3 transition-all font-bold text-lg shadow-lg ${isListening
+                className={`w-full min-h-[50px] sm:min-h-[56px] rounded-xl sm:rounded-2xl flex items-center justify-center gap-2 sm:gap-3 transition-all font-bold text-base sm:text-lg shadow-lg ${isListening
                     ? "bg-red-500 text-white shadow-red-100 animate-pulse ring-4 ring-red-50"
                     : "bg-indigo-600 text-white hover:bg-indigo-700 active:scale-95 shadow-indigo-100"
                     }`}
@@ -194,7 +194,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript }) => {
             </button>
 
             {(isListening || transcript) && (
-                <div className="p-6 bg-gray-50 rounded-[24px] border border-dashed border-gray-300 w-full min-h-[100px] flex flex-col justify-center items-center gap-3 relative overflow-hidden">
+                <div className="p-4 sm:p-6 bg-gray-50 rounded-[20px] sm:rounded-[24px] border border-dashed border-gray-300 w-full min-h-[80px] sm:min-h-[100px] flex flex-col justify-center items-center gap-2 sm:gap-3 relative overflow-hidden">
                     {isListening && !transcript && !interimTranscript && (
                         <div className="flex flex-col items-center gap-2 opacity-40">
                             <Loader2 className="w-6 h-6 animate-spin" />
@@ -202,14 +202,14 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript }) => {
                         </div>
                     )}
 
-                    <div className="text-center space-y-2">
+                    <div className="text-center space-y-2 w-full min-w-0">
                         {transcript && (
-                            <p className="text-gray-800 font-bold text-lg leading-relaxed">
+                            <p className="text-gray-800 font-bold text-base sm:text-lg leading-relaxed break-all px-1">
                                 {transcript}
                             </p>
                         )}
                         {interimTranscript && (
-                            <p className="text-indigo-400 font-bold text-lg animate-pulse">
+                            <p className="text-indigo-400 font-bold text-base sm:text-lg animate-pulse break-all px-1">
                                 {interimTranscript}
                             </p>
                         )}

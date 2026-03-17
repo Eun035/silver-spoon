@@ -111,9 +111,9 @@ export default function Home() {
                 <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-100/50 rounded-full blur-[120px] animate-pulse" />
                 <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-100/50 rounded-full blur-[120px] animate-pulse" />
 
-                <div className="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-2 bg-white/40 backdrop-blur-2xl rounded-[60px] shadow-2xl shadow-indigo-100/50 border border-white/60 overflow-hidden relative z-10 animate-in fade-in zoom-in duration-700">
+                <div className="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-2 bg-white/40 backdrop-blur-2xl rounded-[40px] sm:rounded-[60px] shadow-2xl shadow-indigo-100/50 border border-white/60 overflow-hidden relative z-10 animate-in fade-in zoom-in duration-700">
                     {/* Left Side: Visual Hero */}
-                    <div className="relative bg-gradient-to-br from-indigo-600 via-indigo-500 to-purple-600 p-12 flex flex-col items-center justify-center text-center gap-10 overflow-hidden group">
+                    <div className="relative bg-gradient-to-br from-indigo-600 via-indigo-500 to-purple-600 p-8 sm:p-12 flex flex-col items-center justify-center text-center gap-6 sm:gap-10 overflow-hidden group">
                         <div className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-700">
                             <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/20 via-transparent to-transparent" />
                         </div>
@@ -122,41 +122,41 @@ export default function Home() {
                             <img 
                                 src="/images/hero_login.png" 
                                 alt="CAL.AI Hero" 
-                                className="w-full max-w-[340px] drop-shadow-[0_25px_25px_rgba(0,0,0,0.25)] hover:scale-105 transition-transform duration-700"
+                                className="w-full max-w-[260px] sm:max-w-[340px] drop-shadow-[0_25px_25px_rgba(0,0,0,0.25)] hover:scale-105 transition-transform duration-700"
                                 onError={(e) => {
                                     (e.target as any).src = "https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&q=80&w=800";
                                 }}
                             />
                         </div>
 
-                        <div className="space-y-4 relative z-10 text-white animate-in slide-in-from-bottom-6 duration-1000">
-                            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/20">
-                                <Sparkles className="w-4 h-4 text-yellow-300 fill-yellow-300" />
-                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90">AI Powered Workspace</span>
+                        <div className="space-y-3 sm:space-y-4 relative z-10 text-white animate-in slide-in-from-bottom-6 duration-1000">
+                            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-3 sm:px-4 py-1.5 rounded-full border border-white/20">
+                                <Sparkles className="w-3 sm:w-4 h-3 sm:h-4 text-yellow-300 fill-yellow-300" />
+                                <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] text-white/90">AI Powered Workspace</span>
                             </div>
-                            <h2 className="text-3xl font-black tracking-tight leading-tight">
+                            <h2 className="text-2xl sm:text-3xl font-black tracking-tight leading-tight px-4">
                                 일정을 말하세요.<br/>나머지는 AI가 할게요.
                             </h2>
                         </div>
                     </div>
 
                     {/* Right Side: Login Action */}
-                    <div className="p-12 lg:p-20 flex flex-col items-center justify-center text-center gap-12 bg-white/40">
+                    <div className="p-10 lg:p-20 flex flex-col items-center justify-center text-center gap-8 sm:gap-12 bg-white/40">
                         <div className="space-y-6">
                             <div className="flex flex-col items-center gap-4">
-                                <div className="bg-indigo-600 p-5 rounded-[32px] shadow-2xl shadow-indigo-200 rotate-[-5deg] hover:rotate-0 transition-transform duration-500">
-                                    <Calendar className="w-12 h-12 text-white" />
+                                <div className="bg-indigo-600 p-4 sm:p-5 rounded-[24px] sm:rounded-[32px] shadow-2xl shadow-indigo-200 rotate-[-5deg] hover:rotate-0 transition-transform duration-500">
+                                    <Calendar className="w-8 h-8 sm:w-12 sm:h-12 text-white" />
                                 </div>
-                                <h1 className="text-5xl font-black text-slate-900 tracking-tighter italic uppercase underline decoration-indigo-200 decoration-8 underline-offset-[-2px]">
+                                <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tighter italic uppercase underline decoration-indigo-200 decoration-8 underline-offset-[-2px]">
                                     CAL.AI
                                 </h1>
                             </div>
                             
                             <div className="space-y-2">
-                                <p className="text-xl font-bold text-slate-600 leading-relaxed">
+                                <p className="text-lg sm:text-xl font-bold text-slate-600 leading-relaxed px-4">
                                     가장 스마트한 <span className="text-indigo-600">음성 캘린더</span>
                                 </p>
-                                <p className="text-sm font-bold text-slate-400 max-w-[280px] mx-auto leading-relaxed">
+                                <p className="text-xs sm:text-sm font-bold text-slate-400 max-w-[280px] mx-auto leading-relaxed px-4">
                                     목소리 하나로 당신의 소중한 시간을<br/>더 완벽하게 관리해보세요.
                                 </p>
                             </div>
@@ -165,10 +165,10 @@ export default function Home() {
                         <div className="w-full space-y-4 animate-in slide-in-from-bottom-4 duration-700 delay-300">
                             <button
                                 onClick={() => signIn("google")}
-                                className="group w-full h-20 bg-slate-900 hover:bg-black text-white rounded-[28px] flex items-center justify-center gap-5 transition-all active:scale-95 font-black text-lg shadow-2xl shadow-slate-200"
+                                className="group w-full h-16 sm:h-20 bg-slate-900 hover:bg-black text-white rounded-[24px] sm:rounded-[28px] flex items-center justify-center gap-3 sm:gap-5 transition-all active:scale-95 font-black text-base sm:text-lg shadow-2xl shadow-slate-200"
                             >
-                                <div className="bg-white p-1.5 rounded-full group-hover:scale-110 transition-transform">
-                                    <img src="https://www.google.com/favicon.ico" className="w-6 h-6" alt="Google" />
+                                <div className="bg-white p-1 rounded-full group-hover:scale-110 transition-transform">
+                                    <img src="https://www.google.com/favicon.ico" className="w-5 h-5 sm:w-6 sm:h-6" alt="Google" />
                                 </div>
                                 Google 계정으로 시작하기
                             </button>
@@ -188,67 +188,67 @@ export default function Home() {
         );
     }
 
-    const isDraftValid = draft && new Date(draft.startISO) < new Date(draft.endISO);
+    const isDraftValid = draft && (new Date(draft.startISO) < new Date(draft.endISO));
 
     return (
-        <main className="min-h-screen bg-[#F0F4F8] pb-20">
+        <div className="min-h-screen bg-[#F0F4F8] pb-20">
             {/* Header */}
-            <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100 px-6 py-4 flex justify-between items-center shadow-sm">
+            <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100 px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center shadow-sm">
                 <div className="flex items-center gap-2">
-                    <div className="bg-indigo-600 p-2 rounded-xl">
-                        <Calendar className="w-5 h-5 text-white" />
+                    <div className="bg-indigo-600 p-1.5 sm:p-2 rounded-lg sm:rounded-xl">
+                        <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                     </div>
-                    <h1 className="text-xl font-black text-indigo-900 tracking-tighter uppercase italic">Cal.AI</h1>
+                    <h1 className="text-lg sm:text-xl font-black text-indigo-900 tracking-tighter uppercase italic">Cal.AI</h1>
                 </div>
-                <div className="flex items-center gap-4">
-                    <div className="hidden xs:flex flex-col items-end">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Signed in as</span>
-                        <span className="text-xs font-bold text-gray-800">{session?.user?.name}</span>
+                <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+                    <div className="hidden sm:flex flex-col items-end min-w-0">
+                        <span className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest truncate w-full">Signed in as</span>
+                        <span className="text-[11px] sm:text-xs font-bold text-gray-800 truncate max-w-[100px] sm:max-w-[200px]">{session?.user?.name}</span>
                     </div>
                     <button
                         onClick={() => signOut()}
-                        className="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all active:scale-90"
+                        className="p-1.5 sm:p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl sm:rounded-2xl transition-all active:scale-90 shrink-0"
                         title="Sign Out"
                     >
-                        <LogOut className="w-6 h-6" />
+                        <LogOut className="w-5 h-5 sm:w-6 sm:h-6" />
                     </button>
                 </div>
             </nav>
 
-            <div className="max-w-3xl mx-auto px-6 pt-8 space-y-10">
+            <main id="app-main-container" className="max-w-2xl mx-auto w-full px-3 sm:px-6 pt-6 sm:pt-12 space-y-6 sm:space-y-12 overflow-x-hidden">
                 {/* Input Section */}
                 <section className="space-y-6">
-                    <div className="flex items-center justify-between px-1 md:px-2 gap-1 sm:gap-2">
-                        <div className="flex items-center gap-1.5 sm:gap-2 overflow-hidden">
+                    <div id="mobile-header-container" className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-1 md:px-2 gap-4 sm:gap-2 w-full min-w-0">
+                        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 w-full sm:w-auto">
                             <Sparkles className="w-4 h-4 sm:w-6 sm:h-6 text-yellow-500 shrink-0" />
-                            <h2 className="text-2xl sm:text-3xl font-black text-gray-900 whitespace-nowrap tracking-tight">
+                            <h2 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight shrink min-w-0">
                                 일정추가
                             </h2>
-                            <p className="text-xs sm:text-sm text-gray-400 font-medium hidden md:block md:ml-2 mb-[-2px] whitespace-nowrap shrink-0">
+                            <p className="hidden sm:block text-xs sm:text-sm text-gray-400 font-medium ml-2 mb-[-1px] sm:mb-[-2px] shrink min-w-0 truncate">
                                 말하거나 적어주세요
                             </p>
                         </div>
-                        <div className="flex bg-gray-100 p-1.5 sm:p-2 rounded-2xl shrink-0 items-center">
+                        <div className="flex bg-gray-100 p-1 rounded-2xl w-full sm:w-auto items-center">
                             <button
                                 onClick={() => setInputMode("voice")}
-                                className={`px-4 sm:px-6 py-2 sm:py-3 rounded-xl text-base sm:text-lg font-black transition-all flex items-center justify-center gap-1.5 sm:gap-2 h-full ${inputMode === "voice" ? "bg-white text-indigo-600 shadow-md transform scale-[1.02]" : "text-gray-500 hover:text-gray-700 hover:bg-gray-200"
+                                className={`flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-lg font-black transition-all flex items-center justify-center gap-2 ${inputMode === "voice" ? "bg-white text-indigo-600 shadow-md transform scale-[1.02]" : "text-gray-500"
                                     }`}
                             >
-                                <Mic className="w-5 h-5 sm:w-6 sm:h-6" />
-                                음성
+                                <Mic className="w-4 h-4 sm:w-6 sm:h-6" />
+                                <span>음성</span>
                             </button>
                             <button
                                 onClick={() => setInputMode("text")}
-                                className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl text-sm sm:text-base font-bold transition-all flex items-center justify-center gap-1.5 sm:gap-1.5 h-full ${inputMode === "text" ? "bg-white text-indigo-600 shadow-md transform scale-[1.02]" : "text-gray-500 hover:text-gray-700 hover:bg-gray-200"
+                                className={`flex-1 sm:flex-none px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-base font-bold transition-all flex items-center justify-center gap-1.5 ${inputMode === "text" ? "bg-white text-indigo-600 shadow-md transform scale-[1.02]" : "text-gray-500"
                                     }`}
                             >
-                                <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5" />
-                                텍스트
+                                <MessageSquare className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
+                                <span>텍스트</span>
                             </button>
                         </div>
                     </div>
 
-                    <div className="bg-white p-5 sm:p-8 rounded-[32px] shadow-xl shadow-indigo-100/50 border border-white flex flex-col gap-6">
+                    <div className="bg-white p-5 sm:p-8 rounded-[28px] sm:rounded-[32px] shadow-xl shadow-indigo-100/50 border border-white flex flex-col gap-5 sm:gap-6">
                         {inputMode === "voice" ? (
                             <VoiceInput onTranscript={handleVoiceTranscript} />
                         ) : (
@@ -268,13 +268,13 @@ export default function Home() {
                                 <button
                                     onClick={handleSave}
                                     disabled={!isDraftValid || isSaving}
-                                    className="w-full h-16 bg-black disabled:bg-gray-300 text-white rounded-2xl font-black text-lg flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-95 shadow-xl shadow-gray-200"
+                                    className="w-full h-14 sm:h-16 bg-black disabled:bg-gray-300 text-white rounded-xl sm:rounded-2xl font-black text-base sm:text-lg flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-95 shadow-xl shadow-gray-200"
                                 >
                                     {isSaving ? (
-                                        <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                        <div className="w-5 h-5 sm:w-6 sm:h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
                                     ) : (
                                         <>
-                                            <Save className="w-6 h-6" />
+                                            <Save className="w-5 h-5 sm:w-6 sm:h-6" />
                                             이대로 저장하기
                                         </>
                                     )}
@@ -285,19 +285,19 @@ export default function Home() {
                 </section>
 
                 {/* List Section */}
-                <section className="space-y-6">
-                    <div className="flex justify-between items-center px-2">
-                        <h2 className="text-2xl font-black text-gray-900 flex items-center gap-2">
-                            <Calendar className="w-6 h-6 text-indigo-600" />
-                            다가오는 일정
+                <section className="space-y-4 sm:space-y-6">
+                    <div className="flex justify-between items-center px-1 sm:px-2 gap-2">
+                        <h2 className="text-xl sm:text-2xl font-black text-gray-900 flex items-center gap-2 min-w-0">
+                            <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600 shrink-0" />
+                            <span className="truncate">다가오는 일정</span>
                         </h2>
                         <button
                             onClick={fetchEvents}
                             disabled={loading}
-                            className="p-3 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-2xl transition-all active:rotate-180 duration-500"
+                            className="p-2.5 sm:p-3 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-xl sm:rounded-2xl transition-all active:rotate-180 duration-500"
                             title="Refresh"
                         >
-                            <RotateCcw className={`w-5 h-5 ${loading ? "animate-spin" : ""}`} />
+                            <RotateCcw className={`w-4 h-4 sm:w-5 sm:h-5 ${loading ? "animate-spin" : ""}`} />
                         </button>
                     </div>
 
@@ -324,7 +324,7 @@ export default function Home() {
                         <EventList events={events} onChanged={fetchEvents} />
                     )}
                 </section>
-            </div>
-        </main>
+            </main>
+        </div>
     );
 }
