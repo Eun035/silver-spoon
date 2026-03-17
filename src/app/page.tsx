@@ -52,6 +52,58 @@ export default function Home() {
         fetchEvents();
     }, [fetchEvents]);
 
+    // --- [NEW] Alarm & Notification System ---
+    // 1. Request Notification Permission
+    useEffect(() => {
+        if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "default") {
+            Notification.requestPermission();
+        }
+    }, []);
+
+    // 2. Background Alarm Monitor
+    useEffect(() => {
+        if (status !== "authenticated" || !events || events.length === 0) return;
+
+        const checkAlarms = () => {
+            const now = new Date();
+            events.forEach((event: any) => {
+                const startTime = new Date(event.start.dateTime || event.start.date);
+                if (isNaN(startTime.getTime())) return;
+
+                (event.reminders || []).forEach((minutes: number) => {
+                    const alarmTime = new Date(startTime.getTime() - minutes * 60000);
+                    const diff = now.getTime() - alarmTime.getTime();
+
+                    // Alarm trigger window: Now is past alarmTime but within 1 minute
+                    const alarmKey = `notified-${event.id}-${minutes}`;
+                    const alreadyNotified = sessionStorage.getItem(alarmKey);
+
+                    if (diff >= 0 && diff < 60000 && !alreadyNotified) {
+                        const message = minutes === 0 ? "일정이 지금 시작됩니다!" : `${minutes}분 전입니다.`;
+                        
+                        if ("Notification" in window && Notification.permission === "granted") {
+                            new Notification(`📅 [${event.summary}] 일정 알림`, {
+                                body: `${message}${event.location ? `\n장소: ${event.location}` : ""}`,
+                                icon: "/icon-192x192.png",
+                                tag: event.id, // Group same event notifications
+                            });
+                        } else {
+                            // Fallback to alert if notification permission is not granted
+                            alert(`⏰ [알람] ${event.summary}\n${message}`);
+                        }
+                        
+                        // Mark as notified for this session
+                        sessionStorage.setItem(alarmKey, "true");
+                    }
+                });
+            });
+        };
+
+        const interval = setInterval(checkAlarms, 20000); // Check every 20 seconds
+        return () => clearInterval(interval);
+    }, [events, status]);
+    // ------------------------------------------
+
     const handleParse = useCallback(() => {
         if (!rawText.trim()) return;
         const { draft: newDraft, error } = parseToDraft(rawText);
