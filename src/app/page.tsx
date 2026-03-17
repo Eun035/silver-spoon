@@ -11,7 +11,9 @@ import {
     Mic,
     AlertCircle,
     Save,
-    Sparkles
+    Sparkles,
+    Bell,
+    Type
 } from "lucide-react";
 import EventList from "@/components/EventList";
 import VoiceInput from "@/components/VoiceInput";
@@ -53,6 +55,31 @@ export default function Home() {
     }, [fetchEvents]);
 
     // --- [NEW] Alarm & Notification System ---
+    const testNotification = useCallback(() => {
+        if (!("Notification" in window)) {
+            alert("이 브라우저는 알림 기능을 지원하지 않습니다.");
+            return;
+        }
+
+        if (Notification.permission === "granted") {
+            new Notification("🔔 테스트 알림", {
+                body: "알림이 정상적으로 작동하고 있습니다!",
+                icon: "/icon-192x192.png",
+            });
+        } else if (Notification.permission !== "denied") {
+            Notification.requestPermission().then(permission => {
+                if (permission === "granted") {
+                    new Notification("✅ 권한 허용 완료", {
+                        body: "이제 알림을 받으실 수 있습니다.",
+                        icon: "/icon-192x192.png",
+                    });
+                }
+            });
+        } else {
+            alert("알림 권한이 거부되어 있습니다. 브라우저 설정에서 권한을 허용해 주세요.");
+        }
+    }, []);
+
     // 1. Request Notification Permission
     useEffect(() => {
         if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "default") {
@@ -66,40 +93,43 @@ export default function Home() {
 
         const checkAlarms = () => {
             const now = new Date();
+            // DEBUG: console.log(`[Alarm Monitor] Checking at ${now.toLocaleTimeString()}`);
+            
             events.forEach((event: any) => {
                 const startTime = new Date(event.start.dateTime || event.start.date);
                 if (isNaN(startTime.getTime())) return;
 
-                (event.reminders || []).forEach((minutes: number) => {
+                const eventReminders = event.reminders && event.reminders.length > 0 ? event.reminders : [30]; // Default to 30 if none
+
+                eventReminders.forEach((minutes: number) => {
                     const alarmTime = new Date(startTime.getTime() - minutes * 60000);
                     const diff = now.getTime() - alarmTime.getTime();
 
-                    // Alarm trigger window: Now is past alarmTime but within 1 minute
                     const alarmKey = `notified-${event.id}-${minutes}`;
                     const alreadyNotified = sessionStorage.getItem(alarmKey);
 
-                    if (diff >= 0 && diff < 60000 && !alreadyNotified) {
+                    // Increased window to 2 mins for reliability on throttled tabs
+                    if (diff >= 0 && diff < 120000 && !alreadyNotified) {
                         const message = minutes === 0 ? "일정이 지금 시작됩니다!" : `${minutes}분 전입니다.`;
                         
                         if ("Notification" in window && Notification.permission === "granted") {
                             new Notification(`📅 [${event.summary}] 일정 알림`, {
                                 body: `${message}${event.location ? `\n장소: ${event.location}` : ""}`,
                                 icon: "/icon-192x192.png",
-                                tag: event.id, // Group same event notifications
+                                tag: event.id + minutes,
+                                requireInteraction: true, // Keep notification until user interacts
                             });
                         } else {
-                            // Fallback to alert if notification permission is not granted
                             alert(`⏰ [알람] ${event.summary}\n${message}`);
                         }
                         
-                        // Mark as notified for this session
                         sessionStorage.setItem(alarmKey, "true");
                     }
                 });
             });
         };
 
-        const interval = setInterval(checkAlarms, 20000); // Check every 20 seconds
+        const interval = setInterval(checkAlarms, 30000); // Check every 30 seconds
         return () => clearInterval(interval);
     }, [events, status]);
     // ------------------------------------------
@@ -271,72 +301,86 @@ export default function Home() {
 
             <main id="app-main-container" className="max-w-2xl mx-auto w-full px-3 sm:px-6 pt-6 sm:pt-12 space-y-6 sm:space-y-12 overflow-x-hidden">
                 {/* Input Section */}
-                <section className="space-y-6">
-                    <div id="mobile-header-container" className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-1 md:px-2 gap-4 sm:gap-2 w-full min-w-0">
-                        <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 w-full sm:w-auto">
-                            <Sparkles className="w-4 h-4 sm:w-6 sm:h-6 text-yellow-500 shrink-0" />
-                            <h2 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight shrink min-w-0">
-                                일정추가
-                            </h2>
-                            <p className="hidden sm:block text-xs sm:text-sm text-gray-400 font-medium ml-2 mb-[-1px] sm:mb-[-2px] shrink min-w-0 truncate">
-                                말하거나 적어주세요
-                            </p>
-                        </div>
-                        <div className="flex bg-gray-100 p-1 rounded-2xl w-full sm:w-auto items-center">
-                            <button
-                                onClick={() => setInputMode("voice")}
-                                className={`flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-lg font-black transition-all flex items-center justify-center gap-2 ${inputMode === "voice" ? "bg-white text-indigo-600 shadow-md transform scale-[1.02]" : "text-gray-500"
-                                    }`}
-                            >
-                                <Mic className="w-4 h-4 sm:w-6 sm:h-6" />
-                                <span>음성</span>
-                            </button>
-                            <button
-                                onClick={() => setInputMode("text")}
-                                className={`flex-1 sm:flex-none px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-base font-bold transition-all flex items-center justify-center gap-1.5 ${inputMode === "text" ? "bg-white text-indigo-600 shadow-md transform scale-[1.02]" : "text-gray-500"
-                                    }`}
-                            >
-                                <MessageSquare className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
-                                <span>텍스트</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="bg-white p-5 sm:p-8 rounded-[28px] sm:rounded-[32px] shadow-xl shadow-indigo-100/50 border border-white flex flex-col gap-5 sm:gap-6">
-                        {inputMode === "voice" ? (
-                            <VoiceInput onTranscript={handleVoiceTranscript} />
-                        ) : (
-                            <TextInput value={rawText} onChange={setRawText} onParse={handleParse} />
-                        )}
-
-                        {parseError && (
-                            <div className="bg-red-50 text-red-600 p-4 rounded-2xl flex items-start gap-3 border border-red-100">
-                                <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                                <p className="text-sm font-semibold">{parseError}</p>
+                <section className="bg-white/80 backdrop-blur-md rounded-3xl p-5 sm:p-8 shadow-2xl shadow-indigo-200/50 border border-white/50">
+                    <div className="flex flex-col gap-6 sm:gap-8">
+                        {/* Header & Toggle */}
+                        <div id="mobile-header-container" className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 sm:p-2.5 bg-indigo-100 rounded-2xl text-indigo-600">
+                                    <Sparkles className="w-5 h-5 sm:w-6 sm:h-6" />
+                                </div>
+                                <h2 className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">일정추가</h2>
                             </div>
-                        )}
-
-                        {draft && (
-                            <div className="mt-4 flex flex-col gap-6">
-                                <EventPreviewCard draft={draft} onChange={(patch) => setDraft({ ...draft, ...patch })} />
+                            
+                            <div className="flex items-center gap-2 p-1.5 bg-slate-100/50 rounded-2xl w-full sm:w-auto">
                                 <button
-                                    onClick={handleSave}
-                                    disabled={!isDraftValid || isSaving}
-                                    className="w-full h-14 sm:h-16 bg-black disabled:bg-gray-300 text-white rounded-xl sm:rounded-2xl font-black text-base sm:text-lg flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-95 shadow-xl shadow-gray-200"
+                                    onClick={() => setInputMode("voice")}
+                                    className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-black transition-all duration-300 ${inputMode === "voice" ? "bg-white text-indigo-600 shadow-md ring-1 ring-slate-200" : "text-slate-500 hover:text-slate-800"}`}
                                 >
-                                    {isSaving ? (
-                                        <div className="w-5 h-5 sm:w-6 sm:h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                    ) : (
-                                        <>
-                                            <Save className="w-5 h-5 sm:w-6 sm:h-6" />
-                                            이대로 저장하기
-                                        </>
-                                    )}
+                                    <Mic className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                    음성
+                                </button>
+                                <button
+                                    onClick={() => setInputMode("text")}
+                                    className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-black transition-all duration-300 ${inputMode === "text" ? "bg-white text-indigo-600 shadow-md ring-1 ring-slate-200" : "text-slate-500 hover:text-slate-800"}`}
+                                >
+                                    <Type className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                    텍스트
                                 </button>
                             </div>
-                        )}
+                        </div>
+
+                        {/* Diagnostic Tools */}
+                        <div className="flex items-center justify-between px-4 py-2.5 bg-indigo-50/50 border border-indigo-100/50 rounded-2xl">
+                            <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest flex items-center gap-2">
+                                <Bell className="w-3 h-3" /> Alarm Diagnostics
+                            </span>
+                            <button 
+                                onClick={testNotification}
+                                className="flex items-center gap-1.5 px-3 py-1 bg-white border border-indigo-200 text-indigo-600 rounded-full text-[10px] font-black hover:bg-indigo-50 transition-colors shadow-sm active:scale-95"
+                            >
+                                알람 테스트
+                            </button>
+                        </div>
+
+                        {/* Input Area */}
+                        <div className="bg-gray-50/50 p-4 sm:p-6 rounded-[24px] border border-gray-100 flex flex-col gap-4">
+                            {inputMode === "voice" ? (
+                                <VoiceInput onTranscript={handleVoiceTranscript} />
+                            ) : (
+                                <TextInput value={rawText} onChange={setRawText} onParse={handleParse} />
+                            )}
+
+                            {parseError && (
+                                <div className="bg-red-50 text-red-600 p-4 rounded-xl flex items-start gap-3 border border-red-100 animate-in fade-in slide-in-from-top-2">
+                                    <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                                    <p className="text-sm font-semibold">{parseError}</p>
+                                </div>
+                            )}
+
+                            {draft && (
+                                <div className="mt-2 flex flex-col gap-6">
+                                    <EventPreviewCard draft={draft} onChange={(patch) => setDraft({ ...draft, ...patch })} />
+                                    <button
+                                        onClick={handleSave}
+                                        disabled={!isDraftValid || isSaving}
+                                        className="w-full h-14 sm:h-16 bg-slate-900 disabled:bg-gray-300 text-white rounded-2xl font-black text-base sm:text-lg flex items-center justify-center gap-3 transition-all hover:scale-[1.01] active:scale-95 shadow-xl shadow-slate-200"
+                                    >
+                                        {isSaving ? (
+                                            <div className="w-5 h-5 sm:w-6 sm:h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                        ) : (
+                                            <>
+                                                <Save className="w-5 h-5 sm:w-6 sm:h-6" />
+                                                이대로 저장하기
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </section>
+
 
                 {/* List Section */}
                 <section className="space-y-4 sm:space-y-6">
