@@ -15,19 +15,14 @@ interface Event {
     reminders?: number[];
 }
 
-// Google Calendar Colors Match
+// Google Calendar Colors Match - Reduced for UI compaction
 const CALENDAR_COLORS = [
-    { id: "1", name: "Lavender", bg: "bg-[#7986cb]", border: "border-[#7986cb]" },
-    { id: "2", name: "Sage", bg: "bg-[#33b679]", border: "border-[#33b679]" },
-    { id: "3", name: "Grape", bg: "bg-[#8e24aa]", border: "border-[#8e24aa]" },
-    { id: "4", name: "Flamingo", bg: "bg-[#e67c73]", border: "border-[#e67c73]" },
-    { id: "5", name: "Banana", bg: "bg-[#f6c026]", border: "border-[#f6c026]" },
-    { id: "6", name: "Tangerine", bg: "bg-[#f5511d]", border: "border-[#f5511d]" },
-    { id: "7", name: "Peacock", bg: "bg-[#039be5]", border: "border-[#039be5]" },
-    { id: "8", name: "Graphite", bg: "bg-[#616161]", border: "border-[#616161]" },
-    { id: "9", name: "Blueberry", bg: "bg-[#3f51b5]", border: "border-[#3f51b5]" },
-    { id: "10", name: "Basil", bg: "bg-[#0b8043]", border: "border-[#0b8043]" },
-    { id: "11", name: "Tomato", bg: "bg-[#d50000]", border: "border-[#d50000]" },
+    { id: "1", name: "Lavender", bg: "bg-[#7986cb]", border: "border-[#7986cb]" }, // Blue
+    { id: "2", name: "Sage", bg: "bg-[#33b679]", border: "border-[#33b679]" },   // Green
+    { id: "3", name: "Grape", bg: "bg-[#8e24aa]", border: "border-[#8e24aa]" },   // Purple
+    { id: "4", name: "Flamingo", bg: "bg-[#e67c73]", border: "border-[#e67c73]" }, // Red
+    { id: "5", name: "Banana", bg: "bg-[#f6c026]", border: "border-[#f6c026]" },   // Yellow
+    { id: "8", name: "Graphite", bg: "bg-[#616161]", border: "border-[#616161]" }, // Gray
 ];
 
 interface EventListProps {
@@ -162,7 +157,7 @@ const EventList: React.FC<EventListProps> = ({ events, onChanged }) => {
                     <div className="flex justify-between items-start gap-4">
                         <div className="flex-1 space-y-3">
                             {editingId === event.id && editData ? (
-                                <div className="space-y-4 bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100 flex flex-col gap-3">
+                                <div className="space-y-3 bg-indigo-50/50 p-3 sm:p-4 rounded-2xl border border-indigo-100 flex flex-col gap-2">
                                     <div className="flex justify-between items-center gap-2">
                                         <span className="text-[10px] sm:text-xs font-bold text-indigo-600 uppercase">일정 수정</span>
                                         <div className="flex gap-1">
@@ -227,9 +222,9 @@ const EventList: React.FC<EventListProps> = ({ events, onChanged }) => {
                                         />
                                     </div>
                                     {/* Color ID */}
-                                    <div className="space-y-1">
+                                    <div className="space-y-0.5">
                                         <label className="text-[10px] font-bold text-gray-400 ml-1">색상 변경</label>
-                                        <div className="flex bg-white border border-gray-100 rounded-xl p-2 overflow-x-auto hide-scrollbar items-center gap-2">
+                                        <div className="flex bg-white border border-gray-100 rounded-xl p-1.5 overflow-x-auto hide-scrollbar items-center gap-1.5">
                                             <button
                                                 type="button"
                                                 onClick={() => setEditData({ ...editData, colorId: undefined })}
@@ -248,9 +243,9 @@ const EventList: React.FC<EventListProps> = ({ events, onChanged }) => {
                                         </div>
                                     </div>
                                     {/* Reminders */}
-                                    <div className="space-y-1">
+                                    <div className="space-y-0.5">
                                         <label className="text-[10px] font-bold text-gray-400 ml-1">알림 <span className="font-medium tracking-tighter">(다중선택가능)</span></label>
-                                        <div className="flex flex-wrap gap-2">
+                                        <div className="flex flex-wrap gap-1.5">
                                             <button
                                                 type="button"
                                                 onClick={() => setEditData({ ...editData, reminders: [] })}
@@ -280,7 +275,7 @@ const EventList: React.FC<EventListProps> = ({ events, onChanged }) => {
                                                             }
                                                             setEditData({ ...editData, reminders: newReminders });
                                                         }}
-                                                        className={`px-2.5 py-1.5 rounded-lg text-[10px] font-bold transition-colors flex items-center gap-1 ${isSelected ? "bg-red-500 text-white shadow-sm" : "bg-white border border-gray-100 text-gray-600 hover:bg-gray-50"}`}
+                                                        className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-colors flex items-center gap-1 ${isSelected ? "bg-red-500 text-white shadow-sm" : "bg-white border border-gray-100 text-gray-600 hover:bg-gray-50"}`}
                                                     >
                                                         {option.label}
                                                     </button>
