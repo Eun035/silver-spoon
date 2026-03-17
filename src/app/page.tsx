@@ -173,14 +173,16 @@ export default function Home() {
                                 Google 계정으로 시작하기
                             </button>
                             
-                            <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">
-                                Safe & Secure Google Authentication
-                            </p>
-                        </div>
-
-                        {/* Footer Link */}
-                        <div className="absolute bottom-8 text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] opacity-40">
-                            Powered by Eun035
+                            <div className="pt-4 border-t border-slate-100 w-[60%] mx-auto opacity-50" />
+                            
+                            <div className="space-y-1">
+                                <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em]">
+                                    Safe & Secure Google Authentication
+                                </p>
+                                <p className="text-[10px] font-black text-indigo-300/60 uppercase tracking-[0.4em]">
+                                    Powered by Eun035
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
