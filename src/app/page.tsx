@@ -113,7 +113,7 @@ export default function Home() {
 
                 <div className="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-2 bg-white/40 backdrop-blur-2xl rounded-[40px] sm:rounded-[60px] shadow-2xl shadow-indigo-100/50 border border-white/60 overflow-hidden relative z-10 animate-in fade-in zoom-in duration-700">
                     {/* Left Side: Visual Hero */}
-                    <div className="relative bg-gradient-to-br from-indigo-600 via-indigo-500 to-purple-600 p-8 sm:p-12 flex flex-col items-center justify-center text-center gap-6 sm:gap-10 overflow-hidden group">
+                    <div className="relative bg-gradient-to-br from-indigo-600 via-indigo-500 to-purple-600 p-6 sm:p-12 flex flex-col items-center justify-center text-center gap-4 sm:gap-10 overflow-hidden group">
                         <div className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-700">
                             <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/20 via-transparent to-transparent" />
                         </div>
@@ -122,53 +122,53 @@ export default function Home() {
                             <img 
                                 src="/images/hero_login.png" 
                                 alt="CAL.AI Hero" 
-                                className="w-full max-w-[260px] sm:max-w-[340px] drop-shadow-[0_25px_25px_rgba(0,0,0,0.25)] hover:scale-105 transition-transform duration-700"
+                                className="w-full max-w-[180px] sm:max-w-[340px] drop-shadow-[0_25px_25px_rgba(0,0,0,0.25)] hover:scale-105 transition-transform duration-700"
                                 onError={(e) => {
                                     (e.target as any).src = "https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&q=80&w=800";
                                 }}
                             />
                         </div>
 
-                        <div className="space-y-3 sm:space-y-4 relative z-10 text-white animate-in slide-in-from-bottom-6 duration-1000">
+                        <div className="space-y-2 sm:space-y-4 relative z-10 text-white animate-in slide-in-from-bottom-6 duration-1000">
                             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-3 sm:px-4 py-1.5 rounded-full border border-white/20">
                                 <Sparkles className="w-3 sm:w-4 h-3 sm:h-4 text-yellow-300 fill-yellow-300" />
                                 <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] text-white/90">AI Powered Workspace</span>
                             </div>
-                            <h2 className="text-2xl sm:text-3xl font-black tracking-tight leading-tight px-4">
+                            <h2 className="text-xl sm:text-3xl font-black tracking-tight leading-tight px-4">
                                 일정을 말하세요.<br/>나머지는 AI가 할게요.
                             </h2>
                         </div>
                     </div>
 
                     {/* Right Side: Login Action */}
-                    <div className="p-10 lg:p-20 flex flex-col items-center justify-center text-center gap-8 sm:gap-12 bg-white/40">
-                        <div className="space-y-6">
-                            <div className="flex flex-col items-center gap-4">
-                                <div className="bg-indigo-600 p-4 sm:p-5 rounded-[24px] sm:rounded-[32px] shadow-2xl shadow-indigo-200 rotate-[-5deg] hover:rotate-0 transition-transform duration-500">
-                                    <Calendar className="w-8 h-8 sm:w-12 sm:h-12 text-white" />
+                    <div className="p-6 lg:p-20 flex flex-col items-center justify-center text-center gap-6 sm:gap-12 bg-white/40">
+                        <div className="space-y-4">
+                            <div className="flex flex-col items-center gap-2 sm:gap-4">
+                                <div className="bg-indigo-600 p-3 sm:p-5 rounded-[20px] sm:rounded-[32px] shadow-2xl shadow-indigo-200 rotate-[-5deg] hover:rotate-0 transition-transform duration-500">
+                                    <Calendar className="w-6 h-6 sm:w-12 sm:h-12 text-white" />
                                 </div>
-                                <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tighter italic uppercase underline decoration-indigo-200 decoration-8 underline-offset-[-2px]">
+                                <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tighter italic uppercase underline decoration-indigo-200 decoration-8 underline-offset-[-2px]">
                                     CAL.AI
                                 </h1>
                             </div>
                             
-                            <div className="space-y-2">
-                                <p className="text-lg sm:text-xl font-bold text-slate-600 leading-relaxed px-4">
+                            <div className="space-y-1 sm:space-y-2">
+                                <p className="text-base sm:text-xl font-bold text-slate-600 leading-relaxed px-4">
                                     가장 스마트한 <span className="text-indigo-600">음성 캘린더</span>
                                 </p>
-                                <p className="text-xs sm:text-sm font-bold text-slate-400 max-w-[280px] mx-auto leading-relaxed px-4">
+                                <p className="text-[10px] sm:text-sm font-bold text-slate-400 max-w-[280px] mx-auto leading-relaxed px-4">
                                     목소리 하나로 당신의 소중한 시간을<br/>더 완벽하게 관리해보세요.
                                 </p>
                             </div>
                         </div>
 
-                        <div className="w-full space-y-4 animate-in slide-in-from-bottom-4 duration-700 delay-300">
+                        <div className="w-full space-y-3 animate-in slide-in-from-bottom-4 duration-700 delay-300">
                             <button
                                 onClick={() => signIn("google")}
-                                className="group w-full h-16 sm:h-20 bg-slate-900 hover:bg-black text-white rounded-[24px] sm:rounded-[28px] flex items-center justify-center gap-3 sm:gap-5 transition-all active:scale-95 font-black text-base sm:text-lg shadow-2xl shadow-slate-200"
+                                className="group w-full h-14 sm:h-20 bg-slate-900 hover:bg-black text-white rounded-[20px] sm:rounded-[28px] flex items-center justify-center gap-3 sm:gap-5 transition-all active:scale-95 font-black text-sm sm:text-lg shadow-2xl shadow-slate-200"
                             >
                                 <div className="bg-white p-1 rounded-full group-hover:scale-110 transition-transform">
-                                    <img src="https://www.google.com/favicon.ico" className="w-5 h-5 sm:w-6 sm:h-6" alt="Google" />
+                                    <img src="https://www.google.com/favicon.ico" className="w-4 h-4 sm:w-6 sm:h-6" alt="Google" />
                                 </div>
                                 Google 계정으로 시작하기
                             </button>
