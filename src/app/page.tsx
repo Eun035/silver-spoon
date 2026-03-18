@@ -13,8 +13,10 @@ import {
     Save,
     Sparkles,
     Bell,
-    Type
+    Type,
+    Share2
 } from "lucide-react";
+
 import EventList from "@/components/EventList";
 import VoiceInput from "@/components/VoiceInput";
 import TextInput from "@/components/TextInput";
@@ -36,19 +38,33 @@ export default function Home() {
 
     const fetchEvents = useCallback(async () => {
         if (status !== "authenticated") return;
+        
+        // Handle session refresh error
+        if ((session as any)?.error === "RefreshAccessTokenError") {
+            setError("인증 세션이 만료되었습니다. 다시 로그인해주세요.");
+            return;
+        }
+
         setLoading(true);
         setError(null);
         try {
             const res = await fetch("/api/calendar/list");
             const data = await res.json();
-            if (!res.ok) throw new Error(data.message || "일정을 불러오지 못했습니다.");
+            if (!res.ok) {
+                if (res.status === 401) {
+                    setError("인증 정보가 올바르지 않습니다. 다시 로그인해주세요.");
+                    return;
+                }
+                throw new Error(data.message || "일정을 불러오지 못했습니다.");
+            }
             setEvents(data);
         } catch (err: any) {
             setError(err.message);
         } finally {
             setLoading(false);
         }
-    }, [status]);
+    }, [status, session]);
+
 
     useEffect(() => {
         fetchEvents();
@@ -323,6 +339,24 @@ export default function Home() {
                         <span className="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest truncate w-full">Signed in as</span>
                         <span className="text-[11px] sm:text-xs font-bold text-gray-800 truncate max-w-[100px] sm:max-w-[200px]">{session?.user?.name}</span>
                     </div>
+                    <button
+                        onClick={() => {
+                            if (navigator.share) {
+                                navigator.share({
+                                    title: "CAL.AI - 스마트 음성 캘린더",
+                                    text: "목소리로 관리하는 똑똑한 캘린더, CAL.AI를 사용해보세요!",
+                                    url: window.location.origin,
+                                }).catch(() => {});
+                            } else {
+                                navigator.clipboard.writeText(window.location.origin);
+                                alert("앱 링크가 복사되었습니다!");
+                            }
+                        }}
+                        className="p-1.5 sm:p-2.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-xl sm:rounded-2xl transition-all active:scale-90 shrink-0"
+                        title="앱 공유하기"
+                    >
+                        <Share2 className="w-5 h-5 sm:w-6 sm:h-6" />
+                    </button>
                     <button
                         onClick={() => signOut()}
                         className="p-1.5 sm:p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl sm:rounded-2xl transition-all active:scale-90 shrink-0"

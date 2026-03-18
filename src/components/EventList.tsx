@@ -342,6 +342,31 @@ const EventList: React.FC<EventListProps> = ({ events, onChanged }) => {
                             <div className="flex gap-0.5 sm:gap-1 shrink-0">
                                 <button
                                     disabled={isProcessing}
+                                    onClick={() => {
+                                        const dateStr = formatDate(event);
+                                        const shareText = `[일정 공유]
+제목: ${event.summary}
+시간: ${dateStr}${event.location ? `\n장소: ${event.location}` : ""}
+앱에서 확인: ${window.location.origin}`;
+                                        
+                                        if (navigator.share) {
+                                            navigator.share({
+                                                title: event.summary,
+                                                text: shareText,
+                                                url: window.location.origin,
+                                            }).catch(() => {});
+                                        } else {
+                                            navigator.clipboard.writeText(shareText);
+                                            alert("일정 내용이 복사되었습니다! 필요한 곳에 붙여넣어 공유해보세요.");
+                                        }
+                                    }}
+                                    className="p-1.5 sm:p-2.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-xl sm:rounded-2xl transition-all active:scale-90"
+                                    title="공유"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 sm:w-5 sm:h-5"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" x2="12" y1="2" y2="15"/></svg>
+                                </button>
+                                <button
+                                    disabled={isProcessing}
                                     onClick={() => startEdit(event)}
                                     className="p-1.5 sm:p-2.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl sm:rounded-2xl transition-all active:scale-90"
                                     title="수정"
