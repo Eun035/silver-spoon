@@ -61,14 +61,27 @@ export default function Home() {
             return;
         }
 
+        const playAlarmSound = () => {
+            try {
+                const audio = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
+                audio.volume = 0.5;
+                audio.play();
+            } catch (e) {
+                console.error("Audio play failed:", e);
+            }
+        };
+
         if (Notification.permission === "granted") {
+            playAlarmSound();
             new Notification("🔔 테스트 알림", {
                 body: "알림이 정상적으로 작동하고 있습니다!",
                 icon: "/icon-192x192.png",
             });
+            if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
         } else if (Notification.permission !== "denied") {
             Notification.requestPermission().then(permission => {
                 if (permission === "granted") {
+                    playAlarmSound();
                     new Notification("✅ 권한 허용 완료", {
                         body: "이제 알림을 받으실 수 있습니다.",
                         icon: "/icon-192x192.png",
@@ -93,43 +106,64 @@ export default function Home() {
 
         const checkAlarms = () => {
             const now = new Date();
-            // DEBUG: console.log(`[Alarm Monitor] Checking at ${now.toLocaleTimeString()}`);
             
             events.forEach((event: any) => {
                 const startTime = new Date(event.start.dateTime || event.start.date);
                 if (isNaN(startTime.getTime())) return;
 
-                const eventReminders = event.reminders && event.reminders.length > 0 ? event.reminders : [30]; // Default to 30 if none
+                // Respect event-specific reminders, default to 30 if none
+                const eventReminders = event.reminders && event.reminders.length > 0 ? event.reminders : [30];
 
                 eventReminders.forEach((minutes: number) => {
                     const alarmTime = new Date(startTime.getTime() - minutes * 60000);
                     const diff = now.getTime() - alarmTime.getTime();
 
+                    // Key for tracking notified state
                     const alarmKey = `notified-${event.id}-${minutes}`;
-                    const alreadyNotified = sessionStorage.getItem(alarmKey);
+                    // Use localStorage for persistence across tab closes/refreshes
+                    const alreadyNotified = localStorage.getItem(alarmKey);
 
-                    // Increased window to 2 mins for reliability on throttled tabs
+                    // If we are within 2 minutes of the alarm time and haven't notified yet
                     if (diff >= 0 && diff < 120000 && !alreadyNotified) {
                         const message = minutes === 0 ? "일정이 지금 시작됩니다!" : `${minutes}분 전입니다.`;
                         
+                        // Visual & Audio Notification
                         if ("Notification" in window && Notification.permission === "granted") {
+                            try {
+                                const audio = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
+                                audio.volume = 0.5;
+                                audio.play();
+                            } catch (e) {}
+
                             new Notification(`📅 [${event.summary}] 일정 알림`, {
                                 body: `${message}${event.location ? `\n장소: ${event.location}` : ""}`,
                                 icon: "/icon-192x192.png",
                                 tag: event.id + minutes,
-                                requireInteraction: true, // Keep notification until user interacts
+                                requireInteraction: true,
                             });
+
+                            if (navigator.vibrate) navigator.vibrate([300, 100, 300]);
                         } else {
                             alert(`⏰ [알람] ${event.summary}\n${message}`);
                         }
                         
-                        sessionStorage.setItem(alarmKey, "true");
+                        localStorage.setItem(alarmKey, "true");
                     }
                 });
             });
+            
+            // Cleanup old notified flags (older than 1 day) to prevent storage bloat
+            const oneDayAgo = now.getTime() - 86400000;
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key?.startsWith("notified-")) {
+                    // Note: We don't store timestamp, so just a simple cleanup for very old ones could be added later
+                    // For now, keeping them is safer than premature deletion.
+                }
+            }
         };
 
-        const interval = setInterval(checkAlarms, 30000); // Check every 30 seconds
+        const interval = setInterval(checkAlarms, 20000); // Check every 20 seconds
         return () => clearInterval(interval);
     }, [events, status]);
     // ------------------------------------------
@@ -331,15 +365,20 @@ export default function Home() {
                         </div>
 
                         {/* Diagnostic Tools */}
-                        <div className="flex items-center justify-between px-4 py-2.5 bg-indigo-50/50 border border-indigo-100/50 rounded-2xl">
-                            <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest flex items-center gap-2">
-                                <Bell className="w-3 h-3" /> Alarm Diagnostics
-                            </span>
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between px-4 py-3 bg-indigo-50/50 border border-indigo-100/50 rounded-2xl gap-3">
+                            <div className="flex flex-col gap-1">
+                                <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest flex items-center gap-2">
+                                    <Bell className="w-3 h-3" /> Alarm Diagnostics
+                                </span>
+                                <p className="text-[10px] font-bold text-slate-500">
+                                    알림 상태: {typeof window !== "undefined" && "Notification" in window ? (Notification.permission === "granted" ? "✅ 허용됨" : Notification.permission === "denied" ? "❌ 거부됨" : "❔ 대기 중") : "지원 안 함"}
+                                </p>
+                            </div>
                             <button 
                                 onClick={testNotification}
-                                className="flex items-center gap-1.5 px-3 py-1 bg-white border border-indigo-200 text-indigo-600 rounded-full text-[10px] font-black hover:bg-indigo-50 transition-colors shadow-sm active:scale-95"
+                                className="flex items-center justify-center gap-1.5 px-4 py-2 bg-white border border-indigo-200 text-indigo-600 rounded-xl text-[11px] sm:text-[12px] font-black hover:bg-indigo-50 transition-colors shadow-sm active:scale-95"
                             >
-                                알람 테스트
+                                알람 & 사운드 테스트
                             </button>
                         </div>
 

@@ -257,9 +257,10 @@ const EventPreviewCard: React.FC<EventPreviewCardProps> = ({ draft, onChange }) 
                         <button
                             type="button"
                             onClick={() => onChange({ reminders: [] })}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1 ${(!draft.reminders || draft.reminders.length === 0) ? "bg-indigo-500 text-white shadow-sm" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${(!draft.reminders || draft.reminders.length === 0) ? "bg-slate-800 text-white shadow-md scale-105" : "bg-gray-100 text-gray-500 hover:bg-gray-200"}`}
                         >
-                            <Bell className="w-3 h-3" /> 없음
+                            {(!draft.reminders || draft.reminders.length === 0) ? <X className="w-3 h-3" /> : <Bell className="w-3 h-3 opacity-50" />}
+                            알람 없음
                         </button>
                         {[
                             { label: "정시", value: 0 },
